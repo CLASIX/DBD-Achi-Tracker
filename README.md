@@ -4,6 +4,8 @@ A Windows-friendly and Render-friendly app for scraping your completed **Dead by
 
 ## Current features
 
+- Includes a `.gitattributes` file to keep Git line endings predictable across Windows and Linux/Render
+
 - Scrapes your completed DBD achievements from Steam
 - Pulls the full DBD achievement list from Steam so locked achievements are shown too
 - Lets you search by name, description, role, character, chapter, and status
@@ -31,6 +33,11 @@ A Windows-friendly and Render-friendly app for scraping your completed **Dead by
 - Adds **export to CSV/JSON** for the currently visible browser results and adept results
 - Adds a **force refresh** button to bypass cache and re-scrape Steam on demand
 - Adds an in-app **About / Changelog** modal
+- Adds **real local portrait assets** for most killers and survivors, with fallback portraits for the rest
+- Adds a **custom theme selector**
+- Adds a **pinned goals / challenge queue**
+- Adds a **compare / leaderboard** module for loading multiple friend profiles
+- Adds **insights views** including a role chart, unlock heatmap, and chapter grouping view
 - Adds optional **Admin Tools** for:
   - clearing caches
   - editing achievement overrides from the UI
@@ -182,6 +189,7 @@ services/
 static/
   app.js
   styles.css
+  portraits/
 templates/
   index.html
   login.html
@@ -189,6 +197,7 @@ data/
   achievement_overrides.json
   character_metadata.json
   changelog.json
+  portrait_manifest.json
   global_achievements_cache.json
   profile_cache/              # created automatically at runtime
 VERSION.txt

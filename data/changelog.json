@@ -1,5 +1,28 @@
 [
   {
+    "version": "DBD-Achi-Tracker v1.5",
+    "date": "2026-07-21",
+    "items": [
+      "Added a .gitattributes file to normalize line endings across Windows and Render/Linux environments.",
+      "Set most source files to LF while keeping Windows batch files on CRLF checkout behavior.",
+      "Reduced the chance of noisy Git diffs caused only by line-ending conversion."
+    ]
+  },
+  {
+    "version": "DBD-Achi-Tracker v1.4",
+    "date": "2026-07-21",
+    "items": [
+      "Changed the desktop layout so the main page itself no longer needs long scrolling; each module now scrolls internally.",
+      "Added styled custom scrollbars to module lists, tables, modals, and panels.",
+      "Replaced most generated portraits with real local killer and survivor portrait assets pulled from the provided wiki lists, with fallbacks for the remaining characters.",
+      "Added a custom theme selector with multiple visual themes.",
+      "Added a pinned goals / challenge queue module.",
+      "Added a compare / leaderboard module for friends' public profiles.",
+      "Added an insights module with a role chart, unlock heatmap, and chapter grouping view.",
+      "Kept admin tools, force refresh, export tools, adept modules, and optional password-protected private mode."
+    ]
+  },
+  {
     "version": "DBD-Achi-Tracker v1.3",
     "date": "2026-07-21",
     "items": [

@@ -19,7 +19,7 @@
           </div>
           <p class="subtle">
             Load a public Steam profile, browse your progress by role and character, and jump between
-            your full browser, adept browser, and random adept picker in one place.
+            your full browser, adept browser, compare view, insights, goals, and random adept picker in one place.
           </p>
         </div>
 
@@ -38,15 +38,29 @@
             <button id="load-button" type="submit">Load achievements</button>
             <button id="refresh-button" class="secondary-button" type="button">Force refresh Steam</button>
           </div>
-          <div class="hero-actions">
-            <button id="about-button" class="secondary-button" type="button">About / Changelog</button>
-            {% if admin_tools_enabled %}
-              <button id="admin-button" class="secondary-button" type="button">Admin Tools</button>
-            {% endif %}
-            {% if auth_required %}
-              <a class="text-link-button" href="{{ url_for('logout') }}">Log out</a>
-            {% endif %}
+
+          <div class="hero-secondary-row">
+            <label class="theme-select-wrap" for="theme-select">
+              Theme
+              <select id="theme-select">
+                <option value="default">Fog Blue</option>
+                <option value="bloodmoon">Blood Moon</option>
+                <option value="forest">Forest Trial</option>
+                <option value="violet">Void Energy</option>
+              </select>
+            </label>
+
+            <div class="hero-actions">
+              <button id="about-button" class="secondary-button" type="button">About / Changelog</button>
+              {% if admin_tools_enabled %}
+                <button id="admin-button" class="secondary-button" type="button">Admin Tools</button>
+              {% endif %}
+              {% if auth_required %}
+                <a class="text-link-button" href="{{ url_for('logout') }}">Log out</a>
+              {% endif %}
+            </div>
           </div>
+
           <p class="helper-text">
             Supports <code>/id/name</code>, <code>/profiles/steamid64</code>, a bare SteamID64, or a vanity name.
           </p>
@@ -170,9 +184,12 @@
         </section>
 
         <nav id="module-nav" class="module-nav card" aria-label="App sections">
-          <button class="module-tab active" data-module-target="browser" type="button">🗂️ Achievement Browser</button>
-          <button class="module-tab" data-module-target="adept-browser" type="button">🎯 Adept Browser</button>
-          <button class="module-tab" data-module-target="random-adept" type="button">🎲 Random Adept</button>
+          <button class="module-tab active" data-module-target="browser" type="button">🗂️ Browser</button>
+          <button class="module-tab" data-module-target="adept-browser" type="button">🎯 Adepts</button>
+          <button class="module-tab" data-module-target="random-adept" type="button">🎲 Random</button>
+          <button class="module-tab" data-module-target="goals" type="button">📌 Goals</button>
+          <button class="module-tab" data-module-target="compare" type="button">👥 Compare</button>
+          <button class="module-tab" data-module-target="insights" type="button">📈 Insights</button>
         </nav>
 
         <section id="module-browser" class="module-panel card">
@@ -258,6 +275,14 @@
                   <option value="general">General</option>
                 </select>
               </label>
+
+              <label>
+                View mode
+                <select id="browser-view-select">
+                  <option value="table">Table</option>
+                  <option value="chapter_groups">Chapter groups</option>
+                </select>
+              </label>
             </div>
 
             <div class="filter-strip">
@@ -280,7 +305,7 @@
             </div>
           </div>
 
-          <div class="table-wrap">
+          <div id="browser-table-wrap" class="table-wrap scroll-area">
             <table>
               <thead>
                 <tr>
@@ -295,6 +320,8 @@
               <tbody id="achievement-table-body"></tbody>
             </table>
           </div>
+
+          <div id="browser-chapter-groups" class="chapter-groups scroll-area hidden"></div>
         </section>
 
         <section id="module-adept-browser" class="module-panel card hidden">
@@ -302,38 +329,21 @@
             <div>
               <p class="eyebrow">Adept module</p>
               <h2>Adept Browser</h2>
-              <p class="section-copy">Browse adepts only, sort by release or rarity, and export the exact adept list you are looking at.</p>
+              <p class="section-copy">Browse adepts only, sort by release or rarity, export the exact adept list you are looking at, and pin goals from it.</p>
             </div>
             <p id="adept-results-count" class="results-count">0 adepts</p>
           </div>
 
           <div class="module-stat-row">
-            <article class="mini-stat">
-              <span>Selected role</span>
-              <strong id="adept-browser-role-label">Killer</strong>
-            </article>
-            <article class="mini-stat">
-              <span>Unlocked</span>
-              <strong id="adept-browser-unlocked">0</strong>
-            </article>
-            <article class="mini-stat">
-              <span>Locked</span>
-              <strong id="adept-browser-locked">0</strong>
-            </article>
-            <article class="mini-stat">
-              <span>Total</span>
-              <strong id="adept-browser-total">0</strong>
-            </article>
+            <article class="mini-stat"><span>Selected role</span><strong id="adept-browser-role-label">Killer</strong></article>
+            <article class="mini-stat"><span>Unlocked</span><strong id="adept-browser-unlocked">0</strong></article>
+            <article class="mini-stat"><span>Locked</span><strong id="adept-browser-locked">0</strong></article>
+            <article class="mini-stat"><span>Total</span><strong id="adept-browser-total">0</strong></article>
           </div>
 
           <div class="progress-panel">
-            <div class="progress-head">
-              <span>Selected adept completion</span>
-              <strong id="adept-browser-progress-text">0%</strong>
-            </div>
-            <div class="progress-track large">
-              <span id="adept-browser-progress-fill" class="progress-fill adept-fill" style="width: 0%"></span>
-            </div>
+            <div class="progress-head"><span>Selected adept completion</span><strong id="adept-browser-progress-text">0%</strong></div>
+            <div class="progress-track large"><span id="adept-browser-progress-fill" class="progress-fill adept-fill" style="width: 0%"></span></div>
           </div>
 
           <div class="sticky-toolbar">
@@ -382,7 +392,7 @@
             </div>
           </div>
 
-          <div class="table-wrap">
+          <div class="table-wrap scroll-area">
             <table>
               <thead>
                 <tr>
@@ -409,32 +419,15 @@
           </div>
 
           <div class="module-stat-row">
-            <article class="mini-stat">
-              <span>Selected role</span>
-              <strong id="random-role-label">Killer</strong>
-            </article>
-            <article class="mini-stat">
-              <span>Locked pool</span>
-              <strong id="random-locked-count">0</strong>
-            </article>
-            <article class="mini-stat">
-              <span>Unlocked</span>
-              <strong id="random-unlocked-count">0</strong>
-            </article>
-            <article class="mini-stat">
-              <span>Total adepts</span>
-              <strong id="random-total-count">0</strong>
-            </article>
+            <article class="mini-stat"><span>Selected role</span><strong id="random-role-label">Killer</strong></article>
+            <article class="mini-stat"><span>Locked pool</span><strong id="random-locked-count">0</strong></article>
+            <article class="mini-stat"><span>Unlocked</span><strong id="random-unlocked-count">0</strong></article>
+            <article class="mini-stat"><span>Total adepts</span><strong id="random-total-count">0</strong></article>
           </div>
 
           <div class="progress-panel">
-            <div class="progress-head">
-              <span>Locked adept pool ratio</span>
-              <strong id="random-progress-text">0%</strong>
-            </div>
-            <div class="progress-track large">
-              <span id="random-progress-fill" class="progress-fill killer-fill" style="width: 0%"></span>
-            </div>
+            <div class="progress-head"><span>Locked adept pool ratio</span><strong id="random-progress-text">0%</strong></div>
+            <div class="progress-track large"><span id="random-progress-fill" class="progress-fill killer-fill" style="width: 0%"></span></div>
           </div>
 
           <div class="random-toolbar aligned-toolbar">
@@ -446,7 +439,6 @@
                 <button class="switch" data-random-role="all" type="button">Both</button>
               </div>
             </div>
-
             <div class="control-block compact-control action-block">
               <span class="control-label">Action</span>
               <button id="random-adept-button" class="match-height-button" type="button">Random locked adept</button>
@@ -457,7 +449,7 @@
             <p>Pick a role and press <strong>Random locked adept</strong>.</p>
           </article>
 
-          <section class="locked-pool card inset-card">
+          <section class="locked-pool card inset-card scroll-area">
             <div class="section-header compact">
               <div>
                 <p class="eyebrow">Current pool</p>
@@ -467,6 +459,110 @@
             </div>
             <div id="random-pool-list" class="pool-list"></div>
           </section>
+        </section>
+
+        <section id="module-goals" class="module-panel card hidden">
+          <div class="section-header">
+            <div>
+              <p class="eyebrow">Goal queue</p>
+              <h2>Pinned Goals</h2>
+              <p class="section-copy">Pin achievements from the Browser or Adept Browser to build your challenge queue for the group.</p>
+            </div>
+            <p id="goals-count" class="results-count">0 goals</p>
+          </div>
+
+          <div class="module-actions left-actions">
+            <button id="goals-random-button" type="button">Random goal from queue</button>
+            <button id="goals-clear-button" class="secondary-button" type="button">Clear queue</button>
+          </div>
+
+          <article id="goals-random-card" class="random-card empty">
+            <p>Pin some achievements first, then pick a random queue goal.</p>
+          </article>
+
+          <div id="goals-list" class="goals-list scroll-area"></div>
+        </section>
+
+        <section id="module-compare" class="module-panel card hidden">
+          <div class="section-header">
+            <div>
+              <p class="eyebrow">Friends</p>
+              <h2>Compare / Leaderboard</h2>
+              <p class="section-copy">Add your friends' Steam profiles to compare completion percentages, adepts, and unlocked totals.</p>
+            </div>
+            <p id="compare-count" class="results-count">0 profiles</p>
+          </div>
+
+          <div class="controls-grid">
+            <label>
+              Friend profile URL / SteamID64 / vanity name
+              <input id="compare-profile-input" type="text" placeholder="Paste a friend's public Steam profile">
+            </label>
+            <div class="compare-actions-block">
+              <button id="compare-add-button" type="button">Add to compare</button>
+              <button id="compare-add-current-button" class="secondary-button" type="button">Add current profile</button>
+              <button id="compare-clear-button" class="secondary-button" type="button">Clear compare list</button>
+            </div>
+          </div>
+
+          <div class="table-wrap scroll-area">
+            <table>
+              <thead>
+                <tr>
+                  <th>Profile</th>
+                  <th>Completion</th>
+                  <th>Unlocked</th>
+                  <th>Adepts</th>
+                  <th>Killer</th>
+                  <th>Survivor</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="compare-table-body"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="module-insights" class="module-panel card hidden">
+          <div class="section-header">
+            <div>
+              <p class="eyebrow">Insights</p>
+              <h2>Charts, Heatmap, and Chapter View</h2>
+              <p class="section-copy">See role progress visually, unlock activity over time, and chapter-grouped completion in one place.</p>
+            </div>
+          </div>
+
+          <div class="insights-layout scroll-area">
+            <section class="card inset-card">
+              <div class="section-header compact">
+                <div>
+                  <p class="eyebrow">Chart</p>
+                  <h3>Role completion chart</h3>
+                </div>
+              </div>
+              <div id="role-chart" class="chart-host"></div>
+            </section>
+
+            <section class="card inset-card">
+              <div class="section-header compact">
+                <div>
+                  <p class="eyebrow">Heatmap</p>
+                  <h3>Unlock activity</h3>
+                </div>
+              </div>
+              <div id="unlock-heatmap" class="heatmap-grid"></div>
+            </section>
+
+            <section class="card inset-card">
+              <div class="section-header compact">
+                <div>
+                  <p class="eyebrow">Grouping</p>
+                  <h3>Chapter grouping view</h3>
+                </div>
+              </div>
+              <div id="chapter-summary-list" class="chapter-summary-list"></div>
+            </section>
+          </div>
         </section>
       </section>
     </main>

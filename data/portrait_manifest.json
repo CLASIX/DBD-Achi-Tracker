@@ -1,0 +1,442 @@
+{
+  "Trapper": {
+    "file": "trapper.png",
+    "source": "https://static.wikia.nocookie.net/deadbydaylight_gamepedia_en/images/8/81/K01_TheTrapper_Portrait.png/revision/latest?cb=20240517102906",
+    "role": "killer"
+  },
+  "Wraith": {
+    "file": "wraith.png",
+    "source": "https://static.wikia.nocookie.net/deadbydaylight_gamepedia_en/images/c/c2/K02_TheWraith_Portrait.png/revision/latest?cb=20240517102909",
+    "role": "killer"
+  },
+  "Hillbilly": {
+    "file": "hillbilly.png",
+    "source": "https://static.wikia.nocookie.net/deadbydaylight_gamepedia_en/images/2/24/K03_TheHillbilly_Portrait.png/revision/latest?cb=20240517102913",
+    "role": "killer"
+  },
+  "Nurse": {
+    "file": "nurse.png",
+    "source": "https://static.wikia.nocookie.net/deadbydaylight_gamepedia_en/images/3/3b/K04_TheNurse_Portrait.png/revision/latest?cb=20240517102916",
+    "role": "killer"
+  },
+  "Hag": {
+    "file": "hag.png",
+    "source": "https://static.wikia.nocookie.net/deadbydaylight_gamepedia_en/images/c/c7/K06_TheHag_Portrait.png/revision/latest?cb=20240517102957",
+    "role": "killer"
+  },
+  "Doctor": {
+    "file": "doctor.png",
+    "source": "https://static.wikia.nocookie.net/deadbydaylight_gamepedia_en/images/5/58/K07_TheDoctor_Portrait.png/revision/latest?cb=20240517103001",
+    "role": "killer"
+  },
+  "Huntress": {
+    "file": "huntress.png",
+    "source": "https://static.wikia.nocookie.net/deadbydaylight_gamepedia_en/images/f/f1/K08_TheHuntress_Portrait.png/revision/latest?cb=20240517103005",
+    "role": "killer"
+  },
+  "Cannibal": {
+    "file": "cannibal.png",
+    "source": "https://static.wikia.nocookie.net/deadbydaylight_gamepedia_en/images/6/6f/K09_TheCannibal_Portrait.png/revision/latest?cb=20240517102942",
+    "role": "killer"
+  },
+  "Nightmare": {
+    "file": "nightmare.png",
+    "source": "https://static.wikia.nocookie.net/deadbydaylight_gamepedia_en/images/d/d5/K10_TheNightmare_Portrait.png/revision/latest?cb=20240517103015",
+    "role": "killer"
+  },
+  "Pig": {
+    "file": "pig.png",
+    "source": "https://static.wikia.nocookie.net/deadbydaylight_gamepedia_en/images/5/5c/K11_ThePig_Portrait.png/revision/latest?cb=20240517103021",
+    "role": "killer"
+  },
+  "Clown": {
+    "file": "clown.png",
+    "source": "https://static.wikia.nocookie.net/deadbydaylight_gamepedia_en/images/d/d1/K12_TheClown_Portrait.png/revision/latest?cb=20240517103029",
+    "role": "killer"
+  },
+  "Spirit": {
+    "file": "spirit.png",
+    "source": "https://static.wikia.nocookie.net/deadbydaylight_gamepedia_en/images/f/f1/K13_TheSpirit_Portrait.png/revision/latest?cb=20240517103034",
+    "role": "killer"
+  },
+  "Legion": {
+    "file": "legion.png",
+    "source": "https://static.wikia.nocookie.net/deadbydaylight_gamepedia_en/images/5/53/K14_TheLegion_Portrait.png/revision/latest?cb=20240517103043",
+    "role": "killer"
+  },
+  "Plague": {
+    "file": "plague.png",
+    "source": "https://static.wikia.nocookie.net/deadbydaylight_gamepedia_en/images/f/fe/K15_ThePlague_Portrait.png/revision/latest?cb=20240517103048",
+    "role": "killer"
+  },
+  "Ghost Face": {
+    "file": "ghost-face.png",
+    "source": "https://static.wikia.nocookie.net/deadbydaylight_gamepedia_en/images/d/d1/K16_TheGhostFace_Portrait.png/revision/latest?cb=20240517103053",
+    "role": "killer"
+  },
+  "Oni": {
+    "file": "oni.png",
+    "source": "https://static.wikia.nocookie.net/deadbydaylight_gamepedia_en/images/8/80/K18_TheOni_Portrait.png/revision/latest?cb=20240517103106",
+    "role": "killer"
+  },
+  "Deathslinger": {
+    "file": "deathslinger.png",
+    "source": "https://static.wikia.nocookie.net/deadbydaylight_gamepedia_en/images/a/ac/K19_TheDeathslinger_Portrait.png/revision/latest?cb=20240517103108",
+    "role": "killer"
+  },
+  "Executioner": {
+    "file": "executioner.png",
+    "source": "https://static.wikia.nocookie.net/deadbydaylight_gamepedia_en/images/c/c9/K20_TheExecutioner_Portrait.png/revision/latest?cb=20240517103116",
+    "role": "killer"
+  },
+  "Blight": {
+    "file": "blight.png",
+    "source": "https://static.wikia.nocookie.net/deadbydaylight_gamepedia_en/images/1/1f/K21_TheBlight_Portrait.png/revision/latest?cb=20240517103126",
+    "role": "killer"
+  },
+  "Twins": {
+    "file": "twins.png",
+    "source": "https://static.wikia.nocookie.net/deadbydaylight_gamepedia_en/images/1/17/K22_TheTwins_Portrait.png/revision/latest?cb=20240517102938",
+    "role": "killer"
+  },
+  "Trickster": {
+    "file": "trickster.png",
+    "source": "https://static.wikia.nocookie.net/deadbydaylight_gamepedia_en/images/c/c9/K23_TheTrickster_Portrait.png/revision/latest?cb=20240517102949",
+    "role": "killer"
+  },
+  "Nemesis": {
+    "file": "nemesis.png",
+    "source": "https://static.wikia.nocookie.net/deadbydaylight_gamepedia_en/images/6/67/K24_TheNemesis_Portrait.png/revision/latest?cb=20240517103009",
+    "role": "killer"
+  },
+  "Artist": {
+    "file": "artist.png",
+    "source": "https://static.wikia.nocookie.net/deadbydaylight_gamepedia_en/images/0/01/K26_TheArtist_Portrait.png/revision/latest?cb=20240517103041",
+    "role": "killer"
+  },
+  "Onryō": {
+    "file": "onryo.png",
+    "source": "https://static.wikia.nocookie.net/deadbydaylight_gamepedia_en/images/5/5f/K27_TheOnryo_Portrait.png/revision/latest?cb=20240517103045",
+    "role": "killer"
+  },
+  "Dredge": {
+    "file": "dredge.png",
+    "source": "https://static.wikia.nocookie.net/deadbydaylight_gamepedia_en/images/7/7e/K28_TheDredge_Portrait.png/revision/latest?cb=20240517103050",
+    "role": "killer"
+  },
+  "Mastermind": {
+    "file": "mastermind.png",
+    "source": "https://static.wikia.nocookie.net/deadbydaylight_gamepedia_en/images/e/ec/K29_TheMastermind_Portrait.png/revision/latest?cb=20240517103054",
+    "role": "killer"
+  },
+  "Knight": {
+    "file": "knight.png",
+    "source": "https://static.wikia.nocookie.net/deadbydaylight_gamepedia_en/images/6/69/K30_TheKnight_Portrait.png/revision/latest?cb=20240517103100",
+    "role": "killer"
+  },
+  "Skull Merchant": {
+    "file": "skull-merchant.png",
+    "source": "https://static.wikia.nocookie.net/deadbydaylight_gamepedia_en/images/6/64/K31_TheSkullMerchant_Portrait.png/revision/latest?cb=20240517103102",
+    "role": "killer"
+  },
+  "Singularity": {
+    "file": "singularity.png",
+    "source": "https://static.wikia.nocookie.net/deadbydaylight_gamepedia_en/images/2/24/K32_TheSingularity_Portrait.png/revision/latest?cb=20240517103113",
+    "role": "killer"
+  },
+  "Xenomorph": {
+    "file": "xenomorph.png",
+    "source": "https://static.wikia.nocookie.net/deadbydaylight_gamepedia_en/images/6/64/K33_TheXenomorph_Portrait.png/revision/latest?cb=20240517103121",
+    "role": "killer"
+  },
+  "Good Guy": {
+    "file": "good-guy.png",
+    "source": "https://static.wikia.nocookie.net/deadbydaylight_gamepedia_en/images/8/81/K34_TheGoodGuy_Portrait.png/revision/latest?cb=20240517103130",
+    "role": "killer"
+  },
+  "Unknown": {
+    "file": "unknown.png",
+    "source": "https://static.wikia.nocookie.net/deadbydaylight_gamepedia_en/images/5/51/K35_TheUnknown_Portrait.png/revision/latest?cb=20240517102932",
+    "role": "killer"
+  },
+  "Lich": {
+    "file": "lich.png",
+    "source": "https://static.wikia.nocookie.net/deadbydaylight_gamepedia_en/images/f/f0/K36_TheLich_Portrait.png/revision/latest?cb=20240517102944",
+    "role": "killer"
+  },
+  "Dark Lord": {
+    "file": "dark-lord.png",
+    "source": "https://static.wikia.nocookie.net/deadbydaylight_gamepedia_en/images/6/62/K37_TheDarkLord_Portrait.png/revision/latest?cb=20240806171117",
+    "role": "killer"
+  },
+  "Houndmaster": {
+    "file": "houndmaster.png",
+    "source": "https://static.wikia.nocookie.net/deadbydaylight_gamepedia_en/images/9/96/K38_TheHoundmaster_Portrait.png/revision/latest?cb=20241107164729",
+    "role": "killer"
+  },
+  "Ghoul": {
+    "file": "ghoul.png",
+    "source": "https://static.wikia.nocookie.net/deadbydaylight_gamepedia_en/images/c/c9/K39_TheGhoul_Portrait.png/revision/latest?cb=20250516092323",
+    "role": "killer"
+  },
+  "Animatronic": {
+    "file": "animatronic.png",
+    "source": "https://static.wikia.nocookie.net/deadbydaylight_gamepedia_en/images/0/02/K40_TheAnimatronic_Portrait.png/revision/latest?cb=20250527205857",
+    "role": "killer"
+  },
+  "Krasue": {
+    "file": "krasue.png",
+    "source": "https://static.wikia.nocookie.net/deadbydaylight_gamepedia_en/images/9/93/K41_TheKrasue_Portrait.png/revision/latest?cb=20251205012535",
+    "role": "killer"
+  },
+  "Dwight": {
+    "file": "dwight.png",
+    "source": "https://static.wikia.nocookie.net/deadbydaylight_gamepedia_en/images/3/3d/S01_DwightFairfield_Portrait.png/revision/latest?cb=20240517102919",
+    "role": "survivor"
+  },
+  "Meg": {
+    "file": "meg.png",
+    "source": "https://static.wikia.nocookie.net/deadbydaylight_gamepedia_en/images/3/35/S02_MegThomas_Portrait.png/revision/latest?cb=20240517102922",
+    "role": "survivor"
+  },
+  "Claudette": {
+    "file": "claudette.png",
+    "source": "https://static.wikia.nocookie.net/deadbydaylight_gamepedia_en/images/c/c2/S03_ClaudetteMorel_Portrait.png/revision/latest?cb=20240517102925",
+    "role": "survivor"
+  },
+  "Jake": {
+    "file": "jake.png",
+    "source": "https://static.wikia.nocookie.net/deadbydaylight_gamepedia_en/images/1/18/S04_JakePark_Portrait.png/revision/latest?cb=20240517102927",
+    "role": "survivor"
+  },
+  "Nea": {
+    "file": "nea.png",
+    "source": "https://static.wikia.nocookie.net/deadbydaylight_gamepedia_en/images/e/e6/S05_NeaKarlsson_Portrait.png/revision/latest?cb=20240517102930",
+    "role": "survivor"
+  },
+  "Ace": {
+    "file": "ace.png",
+    "source": "https://static.wikia.nocookie.net/deadbydaylight_gamepedia_en/images/b/b9/S07_AceVisconti_Portrait.png/revision/latest?cb=20240517102959",
+    "role": "survivor"
+  },
+  "Bill": {
+    "file": "bill.png",
+    "source": "https://static.wikia.nocookie.net/deadbydaylight_gamepedia_en/images/9/9c/S08_BillOverbeck_Portrait.png/revision/latest?cb=20240517103047",
+    "role": "survivor"
+  },
+  "Min": {
+    "file": "min.png",
+    "source": "https://static.wikia.nocookie.net/deadbydaylight_gamepedia_en/images/a/a3/S09_FengMin_Portrait.png/revision/latest?cb=20240517103003",
+    "role": "survivor"
+  },
+  "David": {
+    "file": "david.png",
+    "source": "https://static.wikia.nocookie.net/deadbydaylight_gamepedia_en/images/2/2a/S10_DavidKing_Portrait.png/revision/latest?cb=20240517103006",
+    "role": "survivor"
+  },
+  "Quentin": {
+    "file": "quentin.png",
+    "source": "https://static.wikia.nocookie.net/deadbydaylight_gamepedia_en/images/4/40/S11_QuentinSmith_Portrait.png/revision/latest?cb=20240517103016",
+    "role": "survivor"
+  },
+  "Tapp": {
+    "file": "tapp.png",
+    "source": "https://static.wikia.nocookie.net/deadbydaylight_gamepedia_en/images/d/d2/S12_DavidTapp_Portrait.png/revision/latest?cb=20240517103025",
+    "role": "survivor"
+  },
+  "Kate": {
+    "file": "kate.png",
+    "source": "https://static.wikia.nocookie.net/deadbydaylight_gamepedia_en/images/9/9c/S13_KateDenson_Portrait.png/revision/latest?cb=20240517103032",
+    "role": "survivor"
+  },
+  "Adam": {
+    "file": "adam.png",
+    "source": "https://static.wikia.nocookie.net/deadbydaylight_gamepedia_en/images/a/a5/S14_AdamFrancis_Portrait.png/revision/latest?cb=20240517103037",
+    "role": "survivor"
+  },
+  "Jeff": {
+    "file": "jeff.png",
+    "source": "https://static.wikia.nocookie.net/deadbydaylight_gamepedia_en/images/8/81/S15_JeffJohansen_Portrait.png/revision/latest?cb=20240517103044",
+    "role": "survivor"
+  },
+  "Jane": {
+    "file": "jane.png",
+    "source": "https://static.wikia.nocookie.net/deadbydaylight_gamepedia_en/images/8/80/S16_JaneRomero_Portrait.png/revision/latest?cb=20240517103049",
+    "role": "survivor"
+  },
+  "Ash": {
+    "file": "ash.png",
+    "source": "https://static.wikia.nocookie.net/deadbydaylight_gamepedia_en/images/9/91/S17_AshWilliams_Portrait.png/revision/latest?cb=20240517102936",
+    "role": "survivor"
+  },
+  "Yui": {
+    "file": "yui.png",
+    "source": "https://static.wikia.nocookie.net/deadbydaylight_gamepedia_en/images/1/13/S20_YuiKimura_Portrait.png/revision/latest?cb=20240517103107",
+    "role": "survivor"
+  },
+  "Zarina": {
+    "file": "zarina.png",
+    "source": "https://static.wikia.nocookie.net/deadbydaylight_gamepedia_en/images/d/d9/S21_ZarinaKassir_Portrait.png/revision/latest?cb=20240517103111",
+    "role": "survivor"
+  },
+  "Cheryl": {
+    "file": "cheryl.png",
+    "source": "https://static.wikia.nocookie.net/deadbydaylight_gamepedia_en/images/1/1d/S22_CherylMason_Portrait.png/revision/latest?cb=20240517103118",
+    "role": "survivor"
+  },
+  "Felix": {
+    "file": "felix.png",
+    "source": "https://static.wikia.nocookie.net/deadbydaylight_gamepedia_en/images/9/9e/S23_FelixRichter_Portrait.png/revision/latest?cb=20240517103128",
+    "role": "survivor"
+  },
+  "Élodie": {
+    "file": "elodie.png",
+    "source": "https://static.wikia.nocookie.net/deadbydaylight_gamepedia_en/images/d/de/S24_ElodieRakoto_Portrait.png/revision/latest?cb=20240517102940",
+    "role": "survivor"
+  },
+  "Yun-jin": {
+    "file": "yun-jin.png",
+    "source": "https://static.wikia.nocookie.net/deadbydaylight_gamepedia_en/images/f/f7/S25_Yun-JinLee_Portrait.png/revision/latest?cb=20240517102951",
+    "role": "survivor"
+  },
+  "Jill": {
+    "file": "jill.png",
+    "source": "https://static.wikia.nocookie.net/deadbydaylight_gamepedia_en/images/d/db/S26_JillValentine_Portrait.png/revision/latest?cb=20240517103011",
+    "role": "survivor"
+  },
+  "Leon": {
+    "file": "leon.png",
+    "source": "https://static.wikia.nocookie.net/deadbydaylight_gamepedia_en/images/7/7d/S27_LeonScottKennedy_Portrait.png/revision/latest?cb=20240517103013",
+    "role": "survivor"
+  },
+  "Mikaela": {
+    "file": "mikaela.png",
+    "source": "https://static.wikia.nocookie.net/deadbydaylight_gamepedia_en/images/3/3f/S28_MikaelaReid_Portrait.png/revision/latest?cb=20240517103039",
+    "role": "survivor"
+  },
+  "Jonah": {
+    "file": "jonah.png",
+    "source": "https://static.wikia.nocookie.net/deadbydaylight_gamepedia_en/images/3/37/S29_JonahVasquez_Portrait.png/revision/latest?cb=20240517103042",
+    "role": "survivor"
+  },
+  "Yoichi": {
+    "file": "yoichi.png",
+    "source": "https://static.wikia.nocookie.net/deadbydaylight_gamepedia_en/images/8/81/K01_TheTrapper_Portrait.png/revision/latest?cb=20240517102906",
+    "role": "survivor"
+  },
+  "Haddie": {
+    "file": "haddie.png",
+    "source": "https://static.wikia.nocookie.net/deadbydaylight_gamepedia_en/images/e/e7/S31_HaddieKaur_Portrait.png/revision/latest?cb=20240517103051",
+    "role": "survivor"
+  },
+  "Ada": {
+    "file": "ada.png",
+    "source": "https://static.wikia.nocookie.net/deadbydaylight_gamepedia_en/images/5/5e/S32_AdaWong_Portrait.png/revision/latest?cb=20240517103055",
+    "role": "survivor"
+  },
+  "Rebecca": {
+    "file": "rebecca.png",
+    "source": "https://static.wikia.nocookie.net/deadbydaylight_gamepedia_en/images/f/fd/S33_RebeccaChambers_Portrait.png/revision/latest?cb=20240517103056",
+    "role": "survivor"
+  },
+  "Vittorio": {
+    "file": "vittorio.png",
+    "source": "https://static.wikia.nocookie.net/deadbydaylight_gamepedia_en/images/3/39/S34_VittorioToscano_Portrait.png/revision/latest?cb=20240517103101",
+    "role": "survivor"
+  },
+  "Thalita": {
+    "file": "thalita.png",
+    "source": "https://static.wikia.nocookie.net/deadbydaylight_gamepedia_en/images/9/96/S35_ThalitaLyra_Portrait.png/revision/latest?cb=20240517103104",
+    "role": "survivor"
+  },
+  "Renato": {
+    "file": "renato.png",
+    "source": "https://static.wikia.nocookie.net/deadbydaylight_gamepedia_en/images/6/69/S36_RenatoLyra_Portrait.png/revision/latest?cb=20240517103105",
+    "role": "survivor"
+  },
+  "Gabriel": {
+    "file": "gabriel.png",
+    "source": "https://static.wikia.nocookie.net/deadbydaylight_gamepedia_en/images/6/64/S37_GabrielSoma_Portrait.png/revision/latest?cb=20240517103114",
+    "role": "survivor"
+  },
+  "Cage": {
+    "file": "cage.png",
+    "source": "https://static.wikia.nocookie.net/deadbydaylight_gamepedia_en/images/b/b7/S38_NicolasCage_Portrait.png/revision/latest?cb=20240517103115",
+    "role": "survivor"
+  },
+  "Ripley": {
+    "file": "ripley.png",
+    "source": "https://static.wikia.nocookie.net/deadbydaylight_gamepedia_en/images/1/15/S39_EllenRipley_Portrait.png/revision/latest?cb=20240517103125",
+    "role": "survivor"
+  },
+  "Alan": {
+    "file": "alan.png",
+    "source": "https://static.wikia.nocookie.net/deadbydaylight_gamepedia_en/images/4/43/S40_AlanWake_Portrait.png/revision/latest?cb=20240517103134",
+    "role": "survivor"
+  },
+  "Sable": {
+    "file": "sable.png",
+    "source": "https://static.wikia.nocookie.net/deadbydaylight_gamepedia_en/images/8/81/K01_TheTrapper_Portrait.png/revision/latest?cb=20240517102906",
+    "role": "survivor"
+  },
+  "Troupe": {
+    "file": "troupe.png",
+    "source": "https://static.wikia.nocookie.net/deadbydaylight_gamepedia_en/images/e/e0/S42_TheTroupe_Portrait.png/revision/latest?cb=20240517102947",
+    "role": "survivor"
+  },
+  "Lara": {
+    "file": "lara.png",
+    "source": "https://static.wikia.nocookie.net/deadbydaylight_gamepedia_en/images/6/63/S43_LaraCroft_Portrait.png/revision/latest?cb=20240625161310",
+    "role": "survivor"
+  },
+  "Trevor": {
+    "file": "trevor.png",
+    "source": "https://static.wikia.nocookie.net/deadbydaylight_gamepedia_en/images/f/f8/S44_TrevorBelmont_Portrait.png/revision/latest?cb=20240806171145",
+    "role": "survivor"
+  },
+  "Taurie": {
+    "file": "taurie.png",
+    "source": "https://static.wikia.nocookie.net/deadbydaylight_gamepedia_en/images/7/72/S45_TaurieCain_Portrait.png/revision/latest?cb=20241107164720",
+    "role": "survivor"
+  },
+  "Orela": {
+    "file": "orela.png",
+    "source": "https://static.wikia.nocookie.net/deadbydaylight_gamepedia_en/images/8/81/K01_TheTrapper_Portrait.png/revision/latest?cb=20240517102906",
+    "role": "survivor"
+  },
+  "Rick": {
+    "file": "rick.png",
+    "source": "https://static.wikia.nocookie.net/deadbydaylight_gamepedia_en/images/4/4f/S46_RickGrimes_Portrait.png/revision/latest?cb=20260106211051",
+    "role": "survivor"
+  },
+  "Michonne": {
+    "file": "michonne.png",
+    "source": "https://static.wikia.nocookie.net/deadbydaylight_gamepedia_en/images/a/aa/S47_MichonneGrimes_Portrait.png/revision/latest?cb=20260106211509",
+    "role": "survivor"
+  },
+  "Vee": {
+    "file": "vee.png",
+    "source": "https://static.wikia.nocookie.net/deadbydaylight_gamepedia_en/images/c/ce/S48_VeeBoonyasak_Portrait.png/revision/latest?cb=20251127232732",
+    "role": "survivor"
+  },
+  "Tae-young": {
+    "file": "tae-young.png",
+    "source": "https://static.wikia.nocookie.net/deadbydaylight_gamepedia_en/images/8/81/K01_TheTrapper_Portrait.png/revision/latest?cb=20240517102906",
+    "role": "survivor"
+  },
+  "Dustin": {
+    "file": "dustin.png",
+    "source": "https://static.wikia.nocookie.net/deadbydaylight_gamepedia_en/images/8/81/K01_TheTrapper_Portrait.png/revision/latest?cb=20240517102906",
+    "role": "survivor"
+  },
+  "Eleven": {
+    "file": "eleven.png",
+    "source": "https://static.wikia.nocookie.net/deadbydaylight_gamepedia_en/images/8/81/K01_TheTrapper_Portrait.png/revision/latest?cb=20240517102906",
+    "role": "survivor"
+  },
+  "Shane": {
+    "file": "shane.png",
+    "source": "https://static.wikia.nocookie.net/deadbydaylight_gamepedia_en/images/8/81/K01_TheTrapper_Portrait.png/revision/latest?cb=20240517102906",
+    "role": "survivor"
+  }
+}
