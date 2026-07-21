@@ -33,11 +33,11 @@ A Windows-friendly and Render-friendly app for scraping your completed **Dead by
 - Adds **export to CSV/JSON** for the currently visible browser results and adept results
 - Adds a **force refresh** button to bypass cache and re-scrape Steam on demand
 - Adds an in-app **About / Changelog** modal
-- Adds **real local portrait assets** for most killers and survivors, with fallback portraits for the rest
+- Adds **real local portrait assets** for most killers and survivors, with dedicated custom fallback portraits for the remaining custom characters
 - Adds a **custom theme selector**
-- Adds a **pinned goals / challenge queue**
-- Adds a **compare / leaderboard** module for loading multiple friend profiles
-- Adds **insights views** including a role chart, unlock heatmap, and chapter grouping view
+- Adds a **pinned goals / challenge queue** with a smart grind recommendation picker
+- Adds a **compare / leaderboard** module for loading multiple friend profiles, with summary stats and one-click load actions
+- Adds **insights views** including a role chart, rarity breakdown, unlock heatmap, and chapter grouping view
 - Adds optional **Admin Tools** for:
   - clearing caches
   - editing achievement overrides from the UI

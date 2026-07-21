@@ -135,14 +135,22 @@ const elements = {
   goalsList: document.getElementById('goals-list'),
   goalsClearButton: document.getElementById('goals-clear-button'),
   goalsRandomButton: document.getElementById('goals-random-button'),
+  goalsRecommendButton: document.getElementById('goals-recommend-button'),
+  goalsFocusSelect: document.getElementById('goals-focus-select'),
+  goalsModeSelect: document.getElementById('goals-mode-select'),
   goalsRandomCard: document.getElementById('goals-random-card'),
+  goalsSmartCard: document.getElementById('goals-smart-card'),
   compareProfileInput: document.getElementById('compare-profile-input'),
   compareAddButton: document.getElementById('compare-add-button'),
   compareAddCurrentButton: document.getElementById('compare-add-current-button'),
   compareClearButton: document.getElementById('compare-clear-button'),
   compareTableBody: document.getElementById('compare-table-body'),
   compareCount: document.getElementById('compare-count'),
+  compareTopProfile: document.getElementById('compare-top-profile'),
+  compareAverageCompletion: document.getElementById('compare-average-completion'),
+  compareBestAdepts: document.getElementById('compare-best-adepts'),
   roleChart: document.getElementById('role-chart'),
+  rarityChart: document.getElementById('rarity-chart'),
   unlockHeatmap: document.getElementById('unlock-heatmap'),
   chapterSummaryList: document.getElementById('chapter-summary-list'),
 };
@@ -882,24 +890,49 @@ function upsertCompareProfile(entry) {
 function renderCompareModule() {
   elements.compareCount.textContent = `${state.compareProfiles.length} profile${state.compareProfiles.length === 1 ? '' : 's'}`;
   if (!state.compareProfiles.length) {
+    elements.compareTopProfile.textContent = '—';
+    elements.compareAverageCompletion.textContent = '0%';
+    elements.compareBestAdepts.textContent = '0';
     elements.compareTableBody.innerHTML = '<tr><td colspan="7">No profiles added yet. Add current profile or a friend profile to start comparing.</td></tr>';
     return;
   }
 
-  elements.compareTableBody.innerHTML = state.compareProfiles.map((profile, index) => `
-    <tr>
-      <td>
-        <strong>${escapeHtml(profile.profileName)}</strong>
-        <div><a href="${escapeHtml(profile.resolvedProfileUrl)}" target="_blank" rel="noreferrer">Open profile</a></div>
-      </td>
-      <td>${escapeHtml(formatPercent(profile.completionPercent))}</td>
-      <td>${escapeHtml(`${profile.unlocked}/${profile.total}`)}</td>
-      <td>${escapeHtml(`${profile.adeptUnlocked}/${profile.adeptTotal}`)}</td>
-      <td>${escapeHtml(`${profile.killerUnlocked}/${profile.killerTotal}`)}</td>
-      <td>${escapeHtml(`${profile.survivorUnlocked}/${profile.survivorTotal}`)}</td>
-      <td><button class="mini-action" type="button" data-remove-compare="${index}">Remove</button></td>
-    </tr>
-  `).join('');
+  const average = state.compareProfiles.reduce((sum, profile) => sum + (profile.completionPercent || 0), 0) / state.compareProfiles.length;
+  const top = state.compareProfiles[0];
+  const bestAdepts = Math.max(...state.compareProfiles.map((profile) => profile.adeptUnlocked || 0));
+  elements.compareTopProfile.textContent = top.profileName;
+  elements.compareAverageCompletion.textContent = `${average.toFixed(1)}%`;
+  elements.compareBestAdepts.textContent = bestAdepts;
+
+  elements.compareTableBody.innerHTML = state.compareProfiles.map((profile, index) => {
+    const leader = index === 0 ? ' 🏆' : '';
+    const percent = Number(profile.completionPercent || 0);
+    const pctWidth = Math.max(0, Math.min(100, percent));
+    return `
+      <tr>
+        <td>
+          <strong>${escapeHtml(profile.profileName)}${leader}</strong>
+          <div><a href="${escapeHtml(profile.resolvedProfileUrl)}" target="_blank" rel="noreferrer">Open profile</a></div>
+        </td>
+        <td>
+          <div class="global-rate-cell">
+            <strong>${escapeHtml(formatPercent(percent))}</strong>
+            <div class="mini-progress"><span style="width:${pctWidth}%"></span></div>
+          </div>
+        </td>
+        <td>${escapeHtml(`${profile.unlocked}/${profile.total}`)}</td>
+        <td>${escapeHtml(`${profile.adeptUnlocked}/${profile.adeptTotal}`)}</td>
+        <td>${escapeHtml(`${profile.killerUnlocked}/${profile.killerTotal}`)}</td>
+        <td>${escapeHtml(`${profile.survivorUnlocked}/${profile.survivorTotal}`)}</td>
+        <td>
+          <div class="chapter-item-actions">
+            <button class="mini-action" type="button" data-load-compare="${index}">Load</button>
+            <button class="mini-action" type="button" data-remove-compare="${index}">Remove</button>
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('');
 }
 
 async function fetchComparisonProfile(profileInput) {
@@ -972,6 +1005,13 @@ function removeCompareProfile(index) {
   renderCompareModule();
 }
 
+function loadCompareProfileIntoMain(index) {
+  const profile = state.compareProfiles[index];
+  if (!profile) return;
+  elements.profileInput.value = profile.input || profile.resolvedProfileUrl || '';
+  loadAchievements(elements.profileInput.value, false);
+}
+
 function clearCompareProfiles() {
   state.compareProfiles = [];
   renderCompareModule();
@@ -1042,6 +1082,57 @@ function randomGoalFromQueue() {
   `;
 }
 
+function recommendGoal() {
+  const focus = elements.goalsFocusSelect.value;
+  const mode = elements.goalsModeSelect.value;
+
+  let locked = state.achievements.filter((achievement) => !achievement.unlocked);
+  if (focus === 'adept') locked = locked.filter((achievement) => achievement.isAdept);
+  else if (focus !== 'any') locked = locked.filter((achievement) => achievement.role === focus);
+
+  if (!locked.length) {
+    elements.goalsSmartCard.classList.add('empty');
+    elements.goalsSmartCard.innerHTML = '<p>No locked achievements match that smart picker filter.</p>';
+    return;
+  }
+
+  let sorted = [...locked];
+  let label = 'Balanced recommendation';
+  if (mode === 'quick') {
+    sorted = sortAchievements(sorted, 'commonest');
+    label = 'Quick win recommendation';
+  } else if (mode === 'rarest') {
+    sorted = sortAchievements(sorted, 'rarest');
+    label = 'Rarest target recommendation';
+  } else if (mode === 'grindy') {
+    sorted = sortAchievements(sorted, 'name_desc');
+    label = 'Big grind recommendation';
+  } else {
+    sorted = sortAchievements(sorted, focus === 'adept' ? 'rarest' : 'locked_first');
+  }
+
+  const topPool = sorted.slice(0, Math.min(8, sorted.length));
+  const recommendation = topPool[Math.floor(Math.random() * topPool.length)];
+  elements.goalsSmartCard.classList.remove('empty');
+  elements.goalsSmartCard.innerHTML = `
+    <div class="random-card-header">
+      <div>
+        <p class="eyebrow">${escapeHtml(label)}</p>
+        <h3>${escapeHtml(recommendation.name)}</h3>
+      </div>
+      ${portraitImageTag(recommendation.character, `${recommendation.character || 'Character'} portrait`, 'random-icon')}
+    </div>
+    <div class="meta-row">
+      ${roleBadge(recommendation.role)}
+      ${statusBadge(recommendation.unlocked)}
+      ${adeptBadge(recommendation.isAdept)}
+      ${renderPinButton(recommendation.name)}
+    </div>
+    <p>${escapeHtml(recommendation.description || '')}</p>
+    <p><strong>Why this pick:</strong> ${mode === 'quick' ? 'more common / easier to clean up soon' : mode === 'rarest' ? 'rarer target for a brag-worthy grind' : mode === 'grindy' ? 'likely a longer grind target to chip away at' : 'a balanced recommendation from your current locked list'}.</p>
+  `;
+}
+
 function renderRoleChart() {
   if (!state.currentSummary) {
     elements.roleChart.innerHTML = '<p class="subtle">Load a profile to see the role chart.</p>';
@@ -1074,6 +1165,40 @@ function renderRoleChart() {
       ${rows}
     </svg>
   `;
+}
+
+function renderRarityChart() {
+  if (!state.achievements.length) {
+    elements.rarityChart.innerHTML = '<p class="subtle">Load a profile to see the rarity breakdown.</p>';
+    return;
+  }
+
+  const buckets = [
+    { label: 'Ultra rare', min: 0, max: 2 },
+    { label: 'Rare', min: 2, max: 5 },
+    { label: 'Uncommon', min: 5, max: 15 },
+    { label: 'Common', min: 15, max: 101 },
+  ];
+
+  const rows = buckets.map((bucket) => {
+    const list = state.achievements.filter((achievement) => {
+      const pct = Number(achievement.globalPercent ?? -1);
+      return pct >= bucket.min && pct < bucket.max;
+    });
+    const unlocked = list.filter((achievement) => achievement.unlocked).length;
+    return { ...bucket, total: list.length, unlocked, pct: safePercent(unlocked, list.length) };
+  });
+
+  elements.rarityChart.innerHTML = rows.map((row) => `
+    <div class="rarity-row">
+      <div>
+        <strong>${escapeHtml(row.label)}</strong>
+        <small>${row.unlocked}/${row.total} unlocked</small>
+      </div>
+      <div class="progress-track"><span class="progress-fill accent-fill-bar" style="width:${row.pct}%"></span></div>
+      <strong>${row.pct.toFixed(1)}%</strong>
+    </div>
+  `).join('');
 }
 
 function renderHeatmap() {
@@ -1146,6 +1271,7 @@ function renderChapterSummary() {
 
 function renderInsights() {
   renderRoleChart();
+  renderRarityChart();
   renderHeatmap();
   renderChapterSummary();
 }
@@ -1242,6 +1368,12 @@ function attachDelegatedPinHandlers() {
     const removeCompare = target.closest('[data-remove-compare]');
     if (removeCompare) {
       removeCompareProfile(Number(removeCompare.getAttribute('data-remove-compare')));
+      return;
+    }
+
+    const loadCompare = target.closest('[data-load-compare]');
+    if (loadCompare) {
+      loadCompareProfileIntoMain(Number(loadCompare.getAttribute('data-load-compare')));
     }
   });
 }
@@ -1337,6 +1469,7 @@ function attachEvents() {
   elements.exportAdeptCsv.addEventListener('click', () => exportDataset(state.filteredAdepts, 'csv', 'adept-browser'));
   elements.exportAdeptJson.addEventListener('click', () => exportDataset(state.filteredAdepts, 'json', 'adept-browser'));
 
+  elements.goalsRecommendButton.addEventListener('click', recommendGoal);
   elements.goalsRandomButton.addEventListener('click', randomGoalFromQueue);
   elements.goalsClearButton.addEventListener('click', () => {
     state.pinnedGoals = [];

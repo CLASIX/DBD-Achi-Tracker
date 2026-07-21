@@ -5,10 +5,10 @@
       <stop offset="100%" stop-color="#ffb27a"/>
     </linearGradient>
   </defs>
-  <rect width="192" height="192" rx="30" fill="#18202d"/>
-  <rect x="14" y="14" width="164" height="164" rx="26" fill="url(#g)" opacity="0.95"/>
-  <circle cx="96" cy="72" r="34" fill="#0f1218" opacity="0.18"/>
-  <text x="96" y="84" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="34" font-weight="800" fill="#10141d">S</text>
-  <text x="96" y="130" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="700" fill="#10141d">Slasher</text>
-  <text x="96" y="154" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="10" font-weight="600" fill="#10141d" opacity="0.85">Life Road</text>
+  <rect width="192" height="192" rx="28" fill="#241318"/>
+  <rect x="12" y="12" width="168" height="168" rx="24" fill="url(#g)" opacity="0.95"/>
+  <circle cx="96" cy="66" r="30" fill="#1a1012" opacity="0.18"/>
+  <text x="96" y="80" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="34" font-weight="800" fill="#111018">S</text>
+  <text x="96" y="128" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="22" font-weight="800" fill="#111018">Slasher</text>
+  <text x="96" y="150" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="10" font-weight="700" fill="#111018" opacity="0.8">Custom fallback portrait</text>
 </svg>

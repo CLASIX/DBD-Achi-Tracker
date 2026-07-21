@@ -34,6 +34,14 @@ class SteamScrapeError(Exception):
     pass
 
 
+def private_profile_message() -> str:
+    return (
+        "That Steam profile is not public, so the app cannot read its Dead by Daylight achievements. "
+        "To make it public in Steam: open your Steam profile, choose Edit Profile, open Privacy Settings, "
+        "then set My Profile to Public and Game details to Public."
+    )
+
+
 def normalize_whitespace(value: str) -> str:
     return re.sub(r"\s+", " ", value.replace("\xa0", " ")).strip()
 
@@ -134,9 +142,9 @@ def parse_personal_achievements(html: str, resolved_url: str) -> dict[str, Any]:
     page_text = normalize_whitespace(soup.get_text(" ", strip=True))
 
     if "this profile is private" in page_text.lower():
-        raise SteamScrapeError("That Steam profile is private, so the app cannot scrape its achievements.")
+        raise SteamScrapeError(private_profile_message())
     if "error" in (soup.title.get_text(" ", strip=True).lower() if soup.title else ""):
-        raise SteamScrapeError("Steam returned an error page for that profile.")
+        raise SteamScrapeError(private_profile_message())
 
     rows = soup.select(".achieveRow")
     achievements: list[dict[str, Any]] = []

@@ -29,7 +29,7 @@ from services.steam_scraper import (
 BASE_DIR = Path(__file__).resolve().parent
 VERSION_FILE = BASE_DIR / "VERSION.txt"
 CHANGELOG_FILE = BASE_DIR / "data" / "changelog.json"
-APP_VERSION = VERSION_FILE.read_text(encoding="utf-8").strip() if VERSION_FILE.exists() else "DBD-Achi-Tracker v1.4"
+APP_VERSION = VERSION_FILE.read_text(encoding="utf-8").strip() if VERSION_FILE.exists() else "DBD-Achi-Tracker v1.7"
 APP_NAME = "DBD Achievement Tracker"
 ACCESS_PASSWORD = os.environ.get("DBD_ACCESS_PASSWORD", "").strip()
 AUTH_REQUIRED = bool(ACCESS_PASSWORD)

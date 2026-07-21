@@ -471,10 +471,37 @@
             <p id="goals-count" class="results-count">0 goals</p>
           </div>
 
+          <div class="controls-grid">
+            <label>
+              Smart picker focus
+              <select id="goals-focus-select">
+                <option value="any">Any locked achievement</option>
+                <option value="killer">Killer only</option>
+                <option value="survivor">Survivor only</option>
+                <option value="general">General only</option>
+                <option value="adept">Adepts only</option>
+              </select>
+            </label>
+            <label>
+              Recommendation style
+              <select id="goals-mode-select">
+                <option value="balanced">Balanced</option>
+                <option value="quick">Quick wins</option>
+                <option value="rarest">Rarest first</option>
+                <option value="grindy">Big grind</option>
+              </select>
+            </label>
+          </div>
+
           <div class="module-actions left-actions">
+            <button id="goals-recommend-button" type="button">What should I grind tonight?</button>
             <button id="goals-random-button" type="button">Random goal from queue</button>
             <button id="goals-clear-button" class="secondary-button" type="button">Clear queue</button>
           </div>
+
+          <article id="goals-smart-card" class="random-card empty">
+            <p>Use the smart picker to get a recommendation from your currently locked achievements.</p>
+          </article>
 
           <article id="goals-random-card" class="random-card empty">
             <p>Pin some achievements first, then pick a random queue goal.</p>
@@ -491,6 +518,12 @@
               <p class="section-copy">Add your friends' Steam profiles to compare completion percentages, adepts, and unlocked totals.</p>
             </div>
             <p id="compare-count" class="results-count">0 profiles</p>
+          </div>
+
+          <div class="module-stat-row">
+            <article class="mini-stat"><span>Top completion</span><strong id="compare-top-profile">—</strong></article>
+            <article class="mini-stat"><span>Average completion</span><strong id="compare-average-completion">0%</strong></article>
+            <article class="mini-stat"><span>Best adept count</span><strong id="compare-best-adepts">0</strong></article>
           </div>
 
           <div class="controls-grid">
@@ -541,6 +574,16 @@
                 </div>
               </div>
               <div id="role-chart" class="chart-host"></div>
+            </section>
+
+            <section class="card inset-card">
+              <div class="section-header compact">
+                <div>
+                  <p class="eyebrow">Chart</p>
+                  <h3>Rarity breakdown</h3>
+                </div>
+              </div>
+              <div id="rarity-chart" class="chart-host"></div>
             </section>
 
             <section class="card inset-card">

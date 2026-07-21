@@ -1,5 +1,29 @@
 [
   {
+    "version": "DBD-Achi-Tracker v1.7",
+    "date": "2026-07-21",
+    "items": [
+      "Improved active button visibility across module tabs, filters, and selectors.",
+      "Fixed stat-card spacing in module headers such as Selected role / Locked pool / Unlocked / Total adepts.",
+      "Changed private-profile errors to explain that the profile is not public and how to make Steam profile/game details public.",
+      "Polished the compare module with summary stats, completion bars, and one-click load actions.",
+      "Added a smarter grind recommendation card in Goals with focus and recommendation-style controls.",
+      "Improved Insights with an additional rarity breakdown chart.",
+      "Added dedicated custom fallback portraits for missing custom characters such as First and Slasher."
+    ]
+  },
+  {
+    "version": "DBD-Achi-Tracker v1.6",
+    "date": "2026-07-21",
+    "items": [
+      "Fixed the giant empty hero area on first load by removing the forced full-page stretch behavior.",
+      "Made the main page scrollable again when needed while keeping large internal scrolling areas inside modules.",
+      "Increased module height so the main browser, adept browser, goals, compare, and insights panels feel much larger and more usable.",
+      "Kept the custom internal scrollbars for tables, panels, modals, and grouped views.",
+      "Improved the overall dashboard balance so the footer remains reachable without scrolling through the full achievement list."
+    ]
+  },
+  {
     "version": "DBD-Achi-Tracker v1.5",
     "date": "2026-07-21",
     "items": [
