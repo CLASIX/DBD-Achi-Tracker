@@ -1,0 +1,488 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>DBD Achievement Scraper</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  </head>
+  <body>
+    <main class="page-shell">
+      <header class="hero card">
+        <div class="hero-copy">
+          <div class="brand-row">
+            <span class="brand-icon">🩸</span>
+            <div>
+              <p class="eyebrow">Dead by Daylight</p>
+              <h1>Achievement Tracker</h1>
+            </div>
+          </div>
+          <p class="subtle">
+            Load a public Steam profile, browse your progress by role and character, and jump between
+            your full browser, adept browser, and random adept picker in one place.
+          </p>
+        </div>
+
+        <form id="profile-form" class="profile-form">
+          <label for="profile-input">Steam profile URL, SteamID64, or custom profile name</label>
+          <div class="profile-input-row">
+            <input
+              id="profile-input"
+              name="profile"
+              type="text"
+              placeholder="https://steamcommunity.com/id/yourname"
+              autocomplete="off"
+              spellcheck="false"
+              required
+            >
+            <button id="load-button" type="submit">Load achievements</button>
+          </div>
+          <p class="helper-text">
+            Supports <code>/id/name</code>, <code>/profiles/steamid64</code>, a bare SteamID64, or a vanity name.
+          </p>
+        </form>
+      </header>
+
+      <section id="message" class="message hidden" aria-live="polite"></section>
+
+      <section class="card saved-profiles-card">
+        <div class="section-header compact">
+          <div>
+            <p class="eyebrow">Local convenience</p>
+            <h2>Saved Profiles</h2>
+            <p class="section-copy">Save commonly used Steam profiles on this Windows PC for faster loading.</p>
+          </div>
+        </div>
+
+        <div class="saved-profile-controls">
+          <label class="saved-profile-field">
+            Saved profiles
+            <select id="saved-profile-select">
+              <option value="">No saved profiles yet</option>
+            </select>
+          </label>
+          <button id="save-profile-button" type="button">Save current profile</button>
+          <button id="load-saved-profile-button" type="button">Load selected</button>
+          <button id="delete-saved-profile-button" class="secondary-button" type="button">Remove selected</button>
+        </div>
+      </section>
+
+      <section id="workspace" class="workspace hidden">
+        <section id="profile-card" class="card profile-banner">
+          <div class="profile-banner-main">
+            <div class="profile-banner-copy">
+              <p class="eyebrow">Loaded profile</p>
+              <h2 id="profile-name">-</h2>
+              <a id="profile-link" href="#" target="_blank" rel="noreferrer">Open Steam profile</a>
+
+              <div class="overall-progress-block">
+                <div class="progress-head">
+                  <span>Overall completion</span>
+                  <strong id="overall-progress-text">0%</strong>
+                </div>
+                <div class="progress-track large">
+                  <span id="overall-progress-fill" class="progress-fill accent-fill-bar" style="width: 0%"></span>
+                </div>
+              </div>
+            </div>
+
+            <div class="hero-stats">
+              <article class="hero-stat">
+                <span class="stat-icon">🏁</span>
+                <div>
+                  <span>Total</span>
+                  <strong id="summary-total">0</strong>
+                </div>
+              </article>
+              <article class="hero-stat">
+                <span class="stat-icon">✅</span>
+                <div>
+                  <span>Unlocked</span>
+                  <strong id="summary-unlocked">0</strong>
+                </div>
+              </article>
+              <article class="hero-stat">
+                <span class="stat-icon">🔒</span>
+                <div>
+                  <span>Locked</span>
+                  <strong id="summary-locked">0</strong>
+                </div>
+              </article>
+              <article class="hero-stat hero-stat-highlight">
+                <span class="stat-icon">📊</span>
+                <div>
+                  <span>Completion</span>
+                  <strong id="summary-percent">0%</strong>
+                </div>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <section id="summary-cards" class="summary-grid">
+          <article class="card summary-card accent-killer">
+            <div class="summary-top">
+              <span class="card-icon killer-icon">🗡️</span>
+              <div>
+                <p class="eyebrow">Role</p>
+                <h3>Killer</h3>
+              </div>
+            </div>
+            <p><span id="killer-unlocked">0</span> / <span id="killer-total">0</span> unlocked</p>
+            <div class="progress-track">
+              <span id="killer-progress-fill" class="progress-fill killer-fill" style="width: 0%"></span>
+            </div>
+            <p id="killer-progress-text" class="progress-caption">0%</p>
+          </article>
+
+          <article class="card summary-card accent-survivor">
+            <div class="summary-top">
+              <span class="card-icon survivor-icon">🏃</span>
+              <div>
+                <p class="eyebrow">Role</p>
+                <h3>Survivor</h3>
+              </div>
+            </div>
+            <p><span id="survivor-unlocked">0</span> / <span id="survivor-total">0</span> unlocked</p>
+            <div class="progress-track">
+              <span id="survivor-progress-fill" class="progress-fill survivor-fill" style="width: 0%"></span>
+            </div>
+            <p id="survivor-progress-text" class="progress-caption">0%</p>
+          </article>
+
+          <article class="card summary-card accent-general">
+            <div class="summary-top">
+              <span class="card-icon general-icon">🧩</span>
+              <div>
+                <p class="eyebrow">Role</p>
+                <h3>General</h3>
+              </div>
+            </div>
+            <p><span id="general-unlocked">0</span> / <span id="general-total">0</span> unlocked</p>
+            <div class="progress-track">
+              <span id="general-progress-fill" class="progress-fill general-fill" style="width: 0%"></span>
+            </div>
+            <p id="general-progress-text" class="progress-caption">0%</p>
+          </article>
+
+          <article class="card summary-card accent-adept">
+            <div class="summary-top">
+              <span class="card-icon adept-icon">🎯</span>
+              <div>
+                <p class="eyebrow">Focus</p>
+                <h3>Adepts</h3>
+              </div>
+            </div>
+            <p><span id="adept-unlocked">0</span> / <span id="adept-total">0</span> unlocked</p>
+            <div class="progress-track">
+              <span id="adept-progress-fill" class="progress-fill adept-fill" style="width: 0%"></span>
+            </div>
+            <p id="adept-progress-text" class="progress-caption">0%</p>
+          </article>
+        </section>
+
+        <nav id="module-nav" class="module-nav card" aria-label="App sections">
+          <button class="module-tab active" data-module-target="browser" type="button">🗂️ Achievement Browser</button>
+          <button class="module-tab" data-module-target="adept-browser" type="button">🎯 Adept Browser</button>
+          <button class="module-tab" data-module-target="random-adept" type="button">🎲 Random Adept</button>
+        </nav>
+
+        <section id="module-browser" class="module-panel card">
+          <div class="section-header">
+            <div>
+              <p class="eyebrow">Main module</p>
+              <h2>Achievement Browser</h2>
+              <p class="section-copy">Search everything, sort the filtered results, export what you see, and hide adepts if you only want the non-adept list.</p>
+            </div>
+            <p id="results-count" class="results-count">0 results</p>
+          </div>
+
+          <div class="insight-grid">
+            <article class="mini-stat insight-card">
+              <span>Visible results</span>
+              <strong id="browser-visible-total">0</strong>
+            </article>
+            <article class="mini-stat insight-card">
+              <span>Visible unlocked</span>
+              <strong id="browser-visible-unlocked">0</strong>
+            </article>
+            <article class="mini-stat insight-card">
+              <span>Visible locked</span>
+              <strong id="browser-visible-locked">0</strong>
+            </article>
+            <article class="mini-stat insight-card">
+              <span>Visible adepts</span>
+              <strong id="browser-visible-adepts">0</strong>
+            </article>
+          </div>
+
+          <div class="progress-panel">
+            <div class="progress-head">
+              <span>Visible result completion</span>
+              <strong id="browser-progress-text">0%</strong>
+            </div>
+            <div class="progress-track large">
+              <span id="browser-progress-fill" class="progress-fill accent-fill-bar" style="width: 0%"></span>
+            </div>
+          </div>
+
+          <div class="sticky-toolbar">
+            <div class="controls-grid browser-controls">
+              <label>
+                Search
+                <input id="search-input" type="search" placeholder="Search name, description, role, or character">
+              </label>
+
+              <label>
+                Sort by
+                <select id="sort-select">
+                  <option value="name_asc">Name A–Z</option>
+                  <option value="name_desc">Name Z–A</option>
+                  <option value="unlocked_first">Unlocked first</option>
+                  <option value="locked_first">Locked first</option>
+                  <option value="date_newest">Newest unlock</option>
+                  <option value="date_oldest">Oldest unlock</option>
+                  <option value="role">Role (Killer → Survivor → General)</option>
+                  <option value="character">Character</option>
+                  <option value="release_order">Release order</option>
+                  <option value="chapter_asc">Chapter A–Z</option>
+                  <option value="adept_first">Adepts first</option>
+                  <option value="rarest">Rarest first</option>
+                  <option value="commonest">Commonest first</option>
+                </select>
+              </label>
+
+              <label>
+                Status
+                <select id="status-filter">
+                  <option value="all">All</option>
+                  <option value="unlocked">Unlocked</option>
+                  <option value="locked">Locked</option>
+                </select>
+              </label>
+
+              <label>
+                Role
+                <select id="role-filter">
+                  <option value="all">All roles</option>
+                  <option value="killer">Killer</option>
+                  <option value="survivor">Survivor</option>
+                  <option value="general">General</option>
+                </select>
+              </label>
+            </div>
+
+            <div class="filter-strip">
+              <div class="chip-group">
+                <button class="chip active" data-role-quick="all" type="button">All</button>
+                <button class="chip" data-role-quick="killer" type="button">Killer</button>
+                <button class="chip" data-role-quick="survivor" type="button">Survivor</button>
+                <button class="chip" data-role-quick="general" type="button">General</button>
+              </div>
+
+              <label class="inline-checkbox pill-check">
+                <input id="exclude-adepts" type="checkbox">
+                <span>Exclude Adept</span>
+              </label>
+            </div>
+
+            <div class="module-actions">
+              <button id="export-browser-csv" class="secondary-button" type="button">Export visible CSV</button>
+              <button id="export-browser-json" class="secondary-button" type="button">Export visible JSON</button>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Achievement</th>
+                  <th>Role</th>
+                  <th>Character / Chapter</th>
+                  <th>Status</th>
+                  <th>Unlocked / Progress</th>
+                  <th>Global %</th>
+                </tr>
+              </thead>
+              <tbody id="achievement-table-body"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="module-adept-browser" class="module-panel card hidden">
+          <div class="section-header">
+            <div>
+              <p class="eyebrow">Adept module</p>
+              <h2>Adept Browser</h2>
+              <p class="section-copy">Browse adepts only, sort by release or rarity, and export the exact adept list you are looking at.</p>
+            </div>
+            <p id="adept-results-count" class="results-count">0 adepts</p>
+          </div>
+
+          <div class="module-stat-row">
+            <article class="mini-stat">
+              <span>Selected role</span>
+              <strong id="adept-browser-role-label">Killer</strong>
+            </article>
+            <article class="mini-stat">
+              <span>Unlocked</span>
+              <strong id="adept-browser-unlocked">0</strong>
+            </article>
+            <article class="mini-stat">
+              <span>Locked</span>
+              <strong id="adept-browser-locked">0</strong>
+            </article>
+            <article class="mini-stat">
+              <span>Total</span>
+              <strong id="adept-browser-total">0</strong>
+            </article>
+          </div>
+
+          <div class="progress-panel">
+            <div class="progress-head">
+              <span>Selected adept completion</span>
+              <strong id="adept-browser-progress-text">0%</strong>
+            </div>
+            <div class="progress-track large">
+              <span id="adept-browser-progress-fill" class="progress-fill adept-fill" style="width: 0%"></span>
+            </div>
+          </div>
+
+          <div class="sticky-toolbar">
+            <div class="controls-grid adept-controls-grid">
+              <div class="control-block">
+                <span class="control-label">Role</span>
+                <div class="switcher" role="tablist" aria-label="Adept browser role switcher">
+                  <button class="switch active" data-adept-browser-role="killer" type="button">Killer</button>
+                  <button class="switch" data-adept-browser-role="survivor" type="button">Survivor</button>
+                </div>
+              </div>
+
+              <label>
+                Search adepts
+                <input id="adept-search-input" type="search" placeholder="Search adepts">
+              </label>
+
+              <label>
+                Sort adepts
+                <select id="adept-sort-select">
+                  <option value="locked_first">Locked first</option>
+                  <option value="name_asc">Name A–Z</option>
+                  <option value="name_desc">Name Z–A</option>
+                  <option value="release_order">Release order</option>
+                  <option value="chapter_asc">Chapter A–Z</option>
+                  <option value="date_newest">Newest unlock</option>
+                  <option value="date_oldest">Oldest unlock</option>
+                  <option value="rarest">Rarest first</option>
+                  <option value="commonest">Commonest first</option>
+                </select>
+              </label>
+
+              <label>
+                Status
+                <select id="adept-status-filter">
+                  <option value="all">All adepts</option>
+                  <option value="locked">Locked only</option>
+                  <option value="unlocked">Unlocked only</option>
+                </select>
+              </label>
+            </div>
+
+            <div class="module-actions">
+              <button id="export-adept-csv" class="secondary-button" type="button">Export adept CSV</button>
+              <button id="export-adept-json" class="secondary-button" type="button">Export adept JSON</button>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Adept</th>
+                  <th>Role</th>
+                  <th>Character / Chapter</th>
+                  <th>Status</th>
+                  <th>Unlocked / Progress</th>
+                  <th>Global %</th>
+                </tr>
+              </thead>
+              <tbody id="adept-table-body"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="module-random-adept" class="module-panel card hidden">
+          <div class="section-header">
+            <div>
+              <p class="eyebrow">Adept module</p>
+              <h2>Random Adept Picker</h2>
+              <p class="section-copy">Roll a locked adept from killer only, survivor only, or both together.</p>
+            </div>
+          </div>
+
+          <div class="module-stat-row">
+            <article class="mini-stat">
+              <span>Selected role</span>
+              <strong id="random-role-label">Killer</strong>
+            </article>
+            <article class="mini-stat">
+              <span>Locked pool</span>
+              <strong id="random-locked-count">0</strong>
+            </article>
+            <article class="mini-stat">
+              <span>Unlocked</span>
+              <strong id="random-unlocked-count">0</strong>
+            </article>
+            <article class="mini-stat">
+              <span>Total adepts</span>
+              <strong id="random-total-count">0</strong>
+            </article>
+          </div>
+
+          <div class="progress-panel">
+            <div class="progress-head">
+              <span>Locked adept pool ratio</span>
+              <strong id="random-progress-text">0%</strong>
+            </div>
+            <div class="progress-track large">
+              <span id="random-progress-fill" class="progress-fill killer-fill" style="width: 0%"></span>
+            </div>
+          </div>
+
+          <div class="random-toolbar aligned-toolbar">
+            <div class="control-block compact-control">
+              <span class="control-label">Role</span>
+              <div class="switcher switcher-wide" role="tablist" aria-label="Random adept role switcher">
+                <button class="switch active" data-random-role="killer" type="button">Killer</button>
+                <button class="switch" data-random-role="survivor" type="button">Survivor</button>
+                <button class="switch" data-random-role="all" type="button">Both</button>
+              </div>
+            </div>
+
+            <div class="control-block compact-control action-block">
+              <span class="control-label">Action</span>
+              <button id="random-adept-button" class="match-height-button" type="button">Random locked adept</button>
+            </div>
+          </div>
+
+          <article id="random-adept-card" class="random-card empty">
+            <p>Pick a role and press <strong>Random locked adept</strong>.</p>
+          </article>
+
+          <section class="locked-pool card inset-card">
+            <div class="section-header compact">
+              <div>
+                <p class="eyebrow">Current pool</p>
+                <h3>Locked adepts for this role</h3>
+              </div>
+              <p id="random-pool-caption" class="results-count">0 in pool</p>
+            </div>
+            <div id="random-pool-list" class="pool-list"></div>
+          </section>
+        </section>
+      </section>
+    </main>
+
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
+  </body>
+</html>

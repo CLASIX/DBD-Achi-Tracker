@@ -1,0 +1,452 @@
+{
+  "Trapper": {
+    "role": "killer",
+    "releaseOrder": 1,
+    "chapter": "Base Game"
+  },
+  "Wraith": {
+    "role": "killer",
+    "releaseOrder": 2,
+    "chapter": "Base Game"
+  },
+  "Hillbilly": {
+    "role": "killer",
+    "releaseOrder": 3,
+    "chapter": "Base Game"
+  },
+  "Nurse": {
+    "role": "killer",
+    "releaseOrder": 4,
+    "chapter": "The Last Breath"
+  },
+  "Hag": {
+    "role": "killer",
+    "releaseOrder": 5,
+    "chapter": "Of Flesh and Mud"
+  },
+  "Doctor": {
+    "role": "killer",
+    "releaseOrder": 6,
+    "chapter": "Spark of Madness"
+  },
+  "Huntress": {
+    "role": "killer",
+    "releaseOrder": 7,
+    "chapter": "A Lullaby for the Dark"
+  },
+  "Cannibal": {
+    "role": "killer",
+    "releaseOrder": 8,
+    "chapter": "LEATHERFACE"
+  },
+  "Nightmare": {
+    "role": "killer",
+    "releaseOrder": 9,
+    "chapter": "A Nightmare on Elm Street"
+  },
+  "Pig": {
+    "role": "killer",
+    "releaseOrder": 10,
+    "chapter": "SAW"
+  },
+  "Clown": {
+    "role": "killer",
+    "releaseOrder": 11,
+    "chapter": "Curtain Call"
+  },
+  "Spirit": {
+    "role": "killer",
+    "releaseOrder": 12,
+    "chapter": "Shattered Bloodline"
+  },
+  "Legion": {
+    "role": "killer",
+    "releaseOrder": 13,
+    "chapter": "Darkness Among Us"
+  },
+  "Plague": {
+    "role": "killer",
+    "releaseOrder": 14,
+    "chapter": "Demise of the Faithful"
+  },
+  "Ghost Face": {
+    "role": "killer",
+    "releaseOrder": 15,
+    "chapter": "Ghost Face"
+  },
+  "Oni": {
+    "role": "killer",
+    "releaseOrder": 16,
+    "chapter": "Cursed Legacy"
+  },
+  "Deathslinger": {
+    "role": "killer",
+    "releaseOrder": 17,
+    "chapter": "Chains of Hate"
+  },
+  "Executioner": {
+    "role": "killer",
+    "releaseOrder": 18,
+    "chapter": "Silent Hill"
+  },
+  "Blight": {
+    "role": "killer",
+    "releaseOrder": 19,
+    "chapter": "Descend Beyond"
+  },
+  "Twins": {
+    "role": "killer",
+    "releaseOrder": 20,
+    "chapter": "A Binding of Kin"
+  },
+  "Trickster": {
+    "role": "killer",
+    "releaseOrder": 21,
+    "chapter": "All-Kill"
+  },
+  "Nemesis": {
+    "role": "killer",
+    "releaseOrder": 22,
+    "chapter": "Resident Evil"
+  },
+  "Artist": {
+    "role": "killer",
+    "releaseOrder": 23,
+    "chapter": "Portrait of a Murder"
+  },
+  "Onryō": {
+    "role": "killer",
+    "releaseOrder": 24,
+    "chapter": "Sadako Rising"
+  },
+  "Dredge": {
+    "role": "killer",
+    "releaseOrder": 25,
+    "chapter": "Roots of Dread"
+  },
+  "Mastermind": {
+    "role": "killer",
+    "releaseOrder": 26,
+    "chapter": "Resident Evil: PROJECT W"
+  },
+  "Knight": {
+    "role": "killer",
+    "releaseOrder": 27,
+    "chapter": "Forged in Fog"
+  },
+  "Skull Merchant": {
+    "role": "killer",
+    "releaseOrder": 28,
+    "chapter": "Tools of Torment"
+  },
+  "Singularity": {
+    "role": "killer",
+    "releaseOrder": 29,
+    "chapter": "End Transmission"
+  },
+  "Xenomorph": {
+    "role": "killer",
+    "releaseOrder": 30,
+    "chapter": "Alien"
+  },
+  "Good Guy": {
+    "role": "killer",
+    "releaseOrder": 31,
+    "chapter": "Chucky"
+  },
+  "Unknown": {
+    "role": "killer",
+    "releaseOrder": 32,
+    "chapter": "All Things Wicked"
+  },
+  "Lich": {
+    "role": "killer",
+    "releaseOrder": 33,
+    "chapter": "Dungeons & Dragons"
+  },
+  "Dark Lord": {
+    "role": "killer",
+    "releaseOrder": 34,
+    "chapter": "Castlevania"
+  },
+  "Houndmaster": {
+    "role": "killer",
+    "releaseOrder": 35,
+    "chapter": "Doomed Course"
+  },
+  "Ghoul": {
+    "role": "killer",
+    "releaseOrder": 36,
+    "chapter": "Tokyo Ghoul"
+  },
+  "Animatronic": {
+    "role": "killer",
+    "releaseOrder": 37,
+    "chapter": "Five Nights at Freddy's"
+  },
+  "Krasue": {
+    "role": "killer",
+    "releaseOrder": 38,
+    "chapter": "Sinister Grace"
+  },
+  "First": {
+    "role": "killer",
+    "releaseOrder": 39,
+    "chapter": "Stranger Things: Chapter Two"
+  },
+  "Slasher": {
+    "role": "killer",
+    "releaseOrder": 40,
+    "chapter": "Life Road"
+  },
+  "Dwight": {
+    "role": "survivor",
+    "releaseOrder": 1,
+    "chapter": "Base Game"
+  },
+  "Meg": {
+    "role": "survivor",
+    "releaseOrder": 2,
+    "chapter": "Base Game"
+  },
+  "Claudette": {
+    "role": "survivor",
+    "releaseOrder": 3,
+    "chapter": "Base Game"
+  },
+  "Jake": {
+    "role": "survivor",
+    "releaseOrder": 4,
+    "chapter": "Base Game"
+  },
+  "Nea": {
+    "role": "survivor",
+    "releaseOrder": 5,
+    "chapter": "Base Game"
+  },
+  "Ace": {
+    "role": "survivor",
+    "releaseOrder": 6,
+    "chapter": "Of Flesh and Mud"
+  },
+  "Bill": {
+    "role": "survivor",
+    "releaseOrder": 7,
+    "chapter": "Left Behind"
+  },
+  "Min": {
+    "role": "survivor",
+    "releaseOrder": 8,
+    "chapter": "Spark of Madness"
+  },
+  "David": {
+    "role": "survivor",
+    "releaseOrder": 9,
+    "chapter": "Lullaby for the Dark"
+  },
+  "Quentin": {
+    "role": "survivor",
+    "releaseOrder": 10,
+    "chapter": "A Nightmare on Elm Street"
+  },
+  "Tapp": {
+    "role": "survivor",
+    "releaseOrder": 11,
+    "chapter": "SAW"
+  },
+  "Kate": {
+    "role": "survivor",
+    "releaseOrder": 12,
+    "chapter": "Curtain Call"
+  },
+  "Adam": {
+    "role": "survivor",
+    "releaseOrder": 13,
+    "chapter": "Shattered Bloodline"
+  },
+  "Jeff": {
+    "role": "survivor",
+    "releaseOrder": 14,
+    "chapter": "Darkness Among Us"
+  },
+  "Jane": {
+    "role": "survivor",
+    "releaseOrder": 15,
+    "chapter": "Demise of the Faithful"
+  },
+  "Ash": {
+    "role": "survivor",
+    "releaseOrder": 16,
+    "chapter": "Ash vs Evil Dead"
+  },
+  "Yui": {
+    "role": "survivor",
+    "releaseOrder": 17,
+    "chapter": "Cursed Legacy"
+  },
+  "Zarina": {
+    "role": "survivor",
+    "releaseOrder": 18,
+    "chapter": "Chains of Hate"
+  },
+  "Cheryl": {
+    "role": "survivor",
+    "releaseOrder": 19,
+    "chapter": "Silent Hill"
+  },
+  "Felix": {
+    "role": "survivor",
+    "releaseOrder": 20,
+    "chapter": "Descend Beyond"
+  },
+  "Élodie": {
+    "role": "survivor",
+    "releaseOrder": 21,
+    "chapter": "A Binding of Kin"
+  },
+  "Yun-jin": {
+    "role": "survivor",
+    "releaseOrder": 22,
+    "chapter": "All-Kill"
+  },
+  "Jill": {
+    "role": "survivor",
+    "releaseOrder": 23,
+    "chapter": "Resident Evil"
+  },
+  "Leon": {
+    "role": "survivor",
+    "releaseOrder": 24,
+    "chapter": "Resident Evil"
+  },
+  "Mikaela": {
+    "role": "survivor",
+    "releaseOrder": 25,
+    "chapter": "Hour of the Witch"
+  },
+  "Jonah": {
+    "role": "survivor",
+    "releaseOrder": 26,
+    "chapter": "Portrait of a Murder"
+  },
+  "Yoichi": {
+    "role": "survivor",
+    "releaseOrder": 27,
+    "chapter": "Sadako Rising"
+  },
+  "Haddie": {
+    "role": "survivor",
+    "releaseOrder": 28,
+    "chapter": "Roots of Dread"
+  },
+  "Ada": {
+    "role": "survivor",
+    "releaseOrder": 29,
+    "chapter": "Resident Evil: PROJECT W"
+  },
+  "Rebecca": {
+    "role": "survivor",
+    "releaseOrder": 30,
+    "chapter": "Resident Evil: PROJECT W"
+  },
+  "Vittorio": {
+    "role": "survivor",
+    "releaseOrder": 31,
+    "chapter": "Forged in Fog"
+  },
+  "Thalita": {
+    "role": "survivor",
+    "releaseOrder": 32,
+    "chapter": "Tools of Torment"
+  },
+  "Renato": {
+    "role": "survivor",
+    "releaseOrder": 33,
+    "chapter": "Tools of Torment"
+  },
+  "Gabriel": {
+    "role": "survivor",
+    "releaseOrder": 34,
+    "chapter": "End Transmission"
+  },
+  "Cage": {
+    "role": "survivor",
+    "releaseOrder": 35,
+    "chapter": "Nicolas Cage"
+  },
+  "Ripley": {
+    "role": "survivor",
+    "releaseOrder": 36,
+    "chapter": "Alien"
+  },
+  "Alan": {
+    "role": "survivor",
+    "releaseOrder": 37,
+    "chapter": "Alan Wake"
+  },
+  "Sable": {
+    "role": "survivor",
+    "releaseOrder": 38,
+    "chapter": "All Things Wicked"
+  },
+  "Troupe": {
+    "role": "survivor",
+    "releaseOrder": 39,
+    "chapter": "Dungeons & Dragons"
+  },
+  "Lara": {
+    "role": "survivor",
+    "releaseOrder": 40,
+    "chapter": "Tomb Raider"
+  },
+  "Trevor": {
+    "role": "survivor",
+    "releaseOrder": 41,
+    "chapter": "Castlevania"
+  },
+  "Taurie": {
+    "role": "survivor",
+    "releaseOrder": 42,
+    "chapter": "Doomed Course"
+  },
+  "Orela": {
+    "role": "survivor",
+    "releaseOrder": 43,
+    "chapter": "Steady Pulse"
+  },
+  "Rick": {
+    "role": "survivor",
+    "releaseOrder": 44,
+    "chapter": "The Walking Dead"
+  },
+  "Michonne": {
+    "role": "survivor",
+    "releaseOrder": 45,
+    "chapter": "The Walking Dead"
+  },
+  "Vee": {
+    "role": "survivor",
+    "releaseOrder": 46,
+    "chapter": "Sinister Grace"
+  },
+  "Tae-young": {
+    "role": "survivor",
+    "releaseOrder": 47,
+    "chapter": "K-Pop Encore"
+  },
+  "Dustin": {
+    "role": "survivor",
+    "releaseOrder": 48,
+    "chapter": "Stranger Things: Chapter Two"
+  },
+  "Eleven": {
+    "role": "survivor",
+    "releaseOrder": 49,
+    "chapter": "Stranger Things: Chapter Two"
+  },
+  "Shane": {
+    "role": "survivor",
+    "releaseOrder": 50,
+    "chapter": "Life Road"
+  }
+}
