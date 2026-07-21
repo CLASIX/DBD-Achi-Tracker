@@ -140,6 +140,21 @@ The app is ready to use these environment variables:
 - `DBD_RATE_LIMIT_WINDOW_SECONDS`
   - Default: `60`
 
+### Using a `.env` file
+
+If your hosting platform reads a `.env` file and exposes those values as real environment variables, you do **not** need any code updates.
+
+A starter file is included here:
+
+```text
+.env.example
+```
+
+If your platform does **not** auto-load `.env` files into the process environment, then the current app will **not** read `.env` by itself. In that case you should either:
+
+1. add the variables in the host's environment variable dashboard, or
+2. ask me to add `python-dotenv` support in the code
+
 ### Notes about free hosting
 
 - Free hosts may sleep after inactivity.
