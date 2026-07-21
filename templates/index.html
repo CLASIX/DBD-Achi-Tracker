@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>DBD Achievement Scraper</title>
+    <title>{{ app_version }}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
   </head>
   <body>
@@ -36,6 +36,13 @@
               required
             >
             <button id="load-button" type="submit">Load achievements</button>
+            <button id="refresh-button" class="secondary-button" type="button">Force refresh Steam</button>
+          </div>
+          <div class="hero-actions">
+            <button id="about-button" class="secondary-button" type="button">About / Changelog</button>
+            {% if auth_required %}
+              <a class="text-link-button" href="{{ url_for('logout') }}">Log out</a>
+            {% endif %}
           </div>
           <p class="helper-text">
             Supports <code>/id/name</code>, <code>/profiles/steamid64</code>, a bare SteamID64, or a vanity name.
@@ -44,28 +51,6 @@
       </header>
 
       <section id="message" class="message hidden" aria-live="polite"></section>
-
-      <section class="card saved-profiles-card">
-        <div class="section-header compact">
-          <div>
-            <p class="eyebrow">Local convenience</p>
-            <h2>Saved Profiles</h2>
-            <p class="section-copy">Save commonly used Steam profiles on this Windows PC for faster loading.</p>
-          </div>
-        </div>
-
-        <div class="saved-profile-controls">
-          <label class="saved-profile-field">
-            Saved profiles
-            <select id="saved-profile-select">
-              <option value="">No saved profiles yet</option>
-            </select>
-          </label>
-          <button id="save-profile-button" type="button">Save current profile</button>
-          <button id="load-saved-profile-button" type="button">Load selected</button>
-          <button id="delete-saved-profile-button" class="secondary-button" type="button">Remove selected</button>
-        </div>
-      </section>
 
       <section id="workspace" class="workspace hidden">
         <section id="profile-card" class="card profile-banner">
@@ -482,6 +467,50 @@
         </section>
       </section>
     </main>
+
+    <div id="about-modal" class="modal-overlay hidden" aria-hidden="true">
+      <div class="modal-card card" role="dialog" aria-modal="true" aria-labelledby="about-modal-title">
+        <div class="section-header compact">
+          <div>
+            <p class="eyebrow">About</p>
+            <h2 id="about-modal-title">{{ app_name }}</h2>
+            <p class="section-copy">Current build: {{ app_version }}</p>
+          </div>
+          <button id="about-close-button" class="secondary-button" type="button">Close</button>
+        </div>
+
+        <section class="modal-section">
+          <h3>What this app does</h3>
+          <p class="subtle">This app scrapes public Steam Dead by Daylight achievement progress, classifies achievements by role/character, provides adept tools, and supports exportable filtered views.</p>
+        </section>
+
+        <section class="modal-section">
+          <h3>Changelog</h3>
+          <div class="changelog-list">
+            {% for entry in changelog %}
+              <article class="changelog-entry">
+                <div class="section-header compact">
+                  <strong>{{ entry['version'] }}</strong>
+                  <span class="results-count">{{ entry['date'] }}</span>
+                </div>
+                <ul>
+                  {% for item in entry['items'] %}
+                    <li>{{ item }}</li>
+                  {% endfor %}
+                </ul>
+              </article>
+            {% endfor %}
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <footer class="app-footer">
+      <div class="app-footer-inner">
+        <span>{{ app_version }}</span>
+        <span>Hosted DBD achievement tracker</span>
+      </div>
+    </footer>
 
     <script src="{{ url_for('static', filename='app.js') }}"></script>
   </body>

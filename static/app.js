@@ -6,7 +6,6 @@ const PLACEHOLDER_ICON = `data:image/svg+xml;utf8,${encodeURIComponent(`
   </svg>
 `)}`;
 
-const SAVED_PROFILES_KEY = 'dbdSavedProfiles';
 const avatarCache = new Map();
 
 const state = {
@@ -23,11 +22,11 @@ const elements = {
   profileForm: document.getElementById('profile-form'),
   profileInput: document.getElementById('profile-input'),
   loadButton: document.getElementById('load-button'),
+  refreshButton: document.getElementById('refresh-button'),
+  aboutButton: document.getElementById('about-button'),
+  aboutModal: document.getElementById('about-modal'),
+  aboutCloseButton: document.getElementById('about-close-button'),
   message: document.getElementById('message'),
-  savedProfileSelect: document.getElementById('saved-profile-select'),
-  saveProfileButton: document.getElementById('save-profile-button'),
-  loadSavedProfileButton: document.getElementById('load-saved-profile-button'),
-  deleteSavedProfileButton: document.getElementById('delete-saved-profile-button'),
   workspace: document.getElementById('workspace'),
   profileName: document.getElementById('profile-name'),
   profileLink: document.getElementById('profile-link'),
@@ -145,9 +144,7 @@ function adeptBadge(isAdept) {
 }
 
 function formatPercent(value) {
-  if (value === null || value === undefined || Number.isNaN(Number(value))) {
-    return '—';
-  }
+  if (value === null || value === undefined || Number.isNaN(Number(value))) return '—';
   return `${Number(value).toFixed(1)}%`;
 }
 
@@ -172,26 +169,26 @@ function setProgress(fillElement, textElement, numerator, denominator, emptyText
 
 function initialsFromCharacter(character) {
   if (!character) return '—';
-  const parts = character.split(/\s+/).filter(Boolean);
-  return parts.slice(0, 2).map((part) => part[0]).join('').toUpperCase();
+  return character
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0])
+    .join('')
+    .toUpperCase();
 }
 
 function avatarTheme(role) {
   switch (role) {
-    case 'killer':
-      return { a: '#ff7d7d', b: '#ffb27a' };
-    case 'survivor':
-      return { a: '#59dfb4', b: '#77f2d0' };
-    default:
-      return { a: '#84a6ff', b: '#bdd0ff' };
+    case 'killer': return { a: '#ff7d7d', b: '#ffb27a' };
+    case 'survivor': return { a: '#59dfb4', b: '#77f2d0' };
+    default: return { a: '#84a6ff', b: '#bdd0ff' };
   }
 }
 
 function getCharacterAvatar(character, role) {
   const key = `${role}:${character || 'none'}`;
-  if (avatarCache.has(key)) {
-    return avatarCache.get(key);
-  }
+  if (avatarCache.has(key)) return avatarCache.get(key);
 
   const initials = initialsFromCharacter(character);
   const theme = avatarTheme(role);
@@ -230,7 +227,6 @@ function renderCharacterCell(achievement) {
 function sortAchievements(list, mode) {
   const items = [...list];
   const alpha = (a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' });
-
   const dateValue = (item) => {
     if (!item.unlockDate) return null;
     const parsed = new Date(item.unlockDate);
@@ -238,44 +234,31 @@ function sortAchievements(list, mode) {
   };
 
   switch (mode) {
-    case 'name_desc':
-      return items.sort((a, b) => alpha(b, a));
-    case 'unlocked_first':
-      return items.sort((a, b) => Number(b.unlocked) - Number(a.unlocked) || alpha(a, b));
-    case 'locked_first':
-      return items.sort((a, b) => Number(a.unlocked) - Number(b.unlocked) || alpha(a, b));
-    case 'date_newest':
-      return items.sort((a, b) => (dateValue(b) ?? -1) - (dateValue(a) ?? -1) || alpha(a, b));
-    case 'date_oldest':
-      return items.sort((a, b) => (dateValue(a) ?? Number.MAX_SAFE_INTEGER) - (dateValue(b) ?? Number.MAX_SAFE_INTEGER) || alpha(a, b));
-    case 'role':
-      return items.sort((a, b) => (a.sortRoleOrder ?? 99) - (b.sortRoleOrder ?? 99) || alpha(a, b));
+    case 'name_desc': return items.sort((a, b) => alpha(b, a));
+    case 'unlocked_first': return items.sort((a, b) => Number(b.unlocked) - Number(a.unlocked) || alpha(a, b));
+    case 'locked_first': return items.sort((a, b) => Number(a.unlocked) - Number(b.unlocked) || alpha(a, b));
+    case 'date_newest': return items.sort((a, b) => (dateValue(b) ?? -1) - (dateValue(a) ?? -1) || alpha(a, b));
+    case 'date_oldest': return items.sort((a, b) => (dateValue(a) ?? Number.MAX_SAFE_INTEGER) - (dateValue(b) ?? Number.MAX_SAFE_INTEGER) || alpha(a, b));
+    case 'role': return items.sort((a, b) => (a.sortRoleOrder ?? 99) - (b.sortRoleOrder ?? 99) || alpha(a, b));
     case 'character':
       return items.sort((a, b) => {
         const aChar = a.character || 'zzzz';
         const bChar = b.character || 'zzzz';
         return aChar.localeCompare(bChar, undefined, { sensitivity: 'base' }) || alpha(a, b);
       });
-    case 'release_order':
-      return items.sort((a, b) => (a.releaseOrder ?? Number.MAX_SAFE_INTEGER) - (b.releaseOrder ?? Number.MAX_SAFE_INTEGER) || alpha(a, b));
-    case 'chapter_asc':
-      return items.sort((a, b) => (a.chapter || 'zzzz').localeCompare(b.chapter || 'zzzz', undefined, { sensitivity: 'base' }) || alpha(a, b));
-    case 'adept_first':
-      return items.sort((a, b) => Number(b.isAdept) - Number(a.isAdept) || alpha(a, b));
-    case 'rarest':
-      return items.sort((a, b) => (a.globalPercent ?? Number.MAX_SAFE_INTEGER) - (b.globalPercent ?? Number.MAX_SAFE_INTEGER) || alpha(a, b));
-    case 'commonest':
-      return items.sort((a, b) => (b.globalPercent ?? -1) - (a.globalPercent ?? -1) || alpha(a, b));
+    case 'release_order': return items.sort((a, b) => (a.releaseOrder ?? Number.MAX_SAFE_INTEGER) - (b.releaseOrder ?? Number.MAX_SAFE_INTEGER) || alpha(a, b));
+    case 'chapter_asc': return items.sort((a, b) => (a.chapter || 'zzzz').localeCompare(b.chapter || 'zzzz', undefined, { sensitivity: 'base' }) || alpha(a, b));
+    case 'adept_first': return items.sort((a, b) => Number(b.isAdept) - Number(a.isAdept) || alpha(a, b));
+    case 'rarest': return items.sort((a, b) => (a.globalPercent ?? Number.MAX_SAFE_INTEGER) - (b.globalPercent ?? Number.MAX_SAFE_INTEGER) || alpha(a, b));
+    case 'commonest': return items.sort((a, b) => (b.globalPercent ?? -1) - (a.globalPercent ?? -1) || alpha(a, b));
     case 'name_asc':
-    default:
-      return items.sort(alpha);
+    default: return items.sort(alpha);
   }
 }
 
 function renderGlobalRateCell(value) {
   const percent = value === null || value === undefined || Number.isNaN(Number(value)) ? null : Number(value);
   const width = percent === null ? 0 : Math.max(0, Math.min(100, percent));
-
   return `
     <div class="global-rate-cell">
       <strong>${escapeHtml(formatPercent(percent))}</strong>
@@ -288,38 +271,28 @@ function renderGlobalRateCell(value) {
 
 function buildAchievementRows(items, emptyText) {
   if (!items.length) {
-    return `
-      <tr>
-        <td colspan="6">${escapeHtml(emptyText)}</td>
-      </tr>
-    `;
+    return `<tr><td colspan="6">${escapeHtml(emptyText)}</td></tr>`;
   }
 
-  return items
-    .map((achievement) => {
-      return `
-        <tr>
-          <td>
-            <div class="achievement-name">
-              <img src="${escapeHtml(getIconSrc(achievement.icon))}" alt="${escapeHtml(achievement.name)} icon">
-              <div>
-                <strong>${escapeHtml(achievement.name)}</strong>
-                <small>${escapeHtml(achievement.description || 'No description available.')}</small>
-                <div class="meta-row">
-                  ${adeptBadge(achievement.isAdept)}
-                </div>
-              </div>
-            </div>
-          </td>
-          <td>${roleBadge(achievement.role)}</td>
-          <td>${renderCharacterCell(achievement)}</td>
-          <td>${statusBadge(achievement.unlocked)}</td>
-          <td>${escapeHtml(progressText(achievement))}</td>
-          <td>${renderGlobalRateCell(achievement.globalPercent)}</td>
-        </tr>
-      `;
-    })
-    .join('');
+  return items.map((achievement) => `
+    <tr>
+      <td>
+        <div class="achievement-name">
+          <img src="${escapeHtml(getIconSrc(achievement.icon))}" alt="${escapeHtml(achievement.name)} icon">
+          <div>
+            <strong>${escapeHtml(achievement.name)}</strong>
+            <small>${escapeHtml(achievement.description || 'No description available.')}</small>
+            <div class="meta-row">${adeptBadge(achievement.isAdept)}</div>
+          </div>
+        </div>
+      </td>
+      <td>${roleBadge(achievement.role)}</td>
+      <td>${renderCharacterCell(achievement)}</td>
+      <td>${statusBadge(achievement.unlocked)}</td>
+      <td>${escapeHtml(progressText(achievement))}</td>
+      <td>${renderGlobalRateCell(achievement.globalPercent)}</td>
+    </tr>
+  `).join('');
 }
 
 function syncQuickRoleButtons(role) {
@@ -339,7 +312,6 @@ function setActiveModule(moduleName) {
   elements.moduleTabs.forEach((button) => {
     button.classList.toggle('active', button.dataset.moduleTarget === moduleName);
   });
-
   Object.entries(elements.modulePanels).forEach(([name, panel]) => {
     panel.classList.toggle('hidden', name !== moduleName);
   });
@@ -349,7 +321,6 @@ function updateBrowserVisibleStats(items) {
   const unlocked = items.filter((item) => item.unlocked).length;
   const locked = items.length - unlocked;
   const adepts = items.filter((item) => item.isAdept).length;
-
   elements.browserVisibleTotal.textContent = items.length;
   elements.browserVisibleUnlocked.textContent = unlocked;
   elements.browserVisibleLocked.textContent = locked;
@@ -371,43 +342,28 @@ function filterAchievements() {
     if (statusMode === 'locked' && achievement.unlocked) return false;
     if (roleMode !== 'all' && achievement.role !== roleMode) return false;
     if (excludeAdepts && achievement.isAdept) return false;
-
     if (!query) return true;
-    const haystack = [
-      achievement.name,
-      achievement.description,
-      achievement.role,
-      achievement.character,
-      achievement.chapter,
-      achievement.unlocked ? 'unlocked' : 'locked',
-    ]
+
+    const haystack = [achievement.name, achievement.description, achievement.role, achievement.character, achievement.chapter, achievement.unlocked ? 'unlocked' : 'locked']
       .join(' ')
       .toLowerCase();
-
     return haystack.includes(query);
   });
 
   state.filteredAchievements = sortAchievements(filtered, sortMode);
-  elements.achievementTableBody.innerHTML = buildAchievementRows(
-    state.filteredAchievements,
-    'No achievements match your current search and filter settings.'
-  );
+  elements.achievementTableBody.innerHTML = buildAchievementRows(state.filteredAchievements, 'No achievements match your current search and filter settings.');
   elements.resultsCount.textContent = `${state.filteredAchievements.length} result${state.filteredAchievements.length === 1 ? '' : 's'}`;
   updateBrowserVisibleStats(state.filteredAchievements);
 }
 
 function getAdeptsForRole(role) {
   const adepts = state.achievements.filter((achievement) => achievement.isAdept);
-  if (role === 'all') {
-    return adepts;
-  }
-  return adepts.filter((achievement) => achievement.role === role);
+  return role === 'all' ? adepts : adepts.filter((achievement) => achievement.role === role);
 }
 
 function updateAdeptBrowserStats(items) {
   const unlocked = items.filter((item) => item.unlocked).length;
   const locked = items.length - unlocked;
-
   elements.adeptBrowserRoleLabel.textContent = roleLabel(state.adeptBrowserRole);
   elements.adeptBrowserUnlocked.textContent = unlocked;
   elements.adeptBrowserLocked.textContent = locked;
@@ -416,19 +372,18 @@ function updateAdeptBrowserStats(items) {
 }
 
 function filterAdeptBrowser() {
-  const role = state.adeptBrowserRole;
+  const roleAdepts = getAdeptsForRole(state.adeptBrowserRole);
   const query = elements.adeptSearchInput.value.trim().toLowerCase();
   const statusMode = elements.adeptStatusFilter.value;
   const sortMode = elements.adeptSortSelect.value;
 
-  const roleAdepts = getAdeptsForRole(role);
   updateAdeptBrowserStats(roleAdepts);
 
   const filtered = roleAdepts.filter((achievement) => {
     if (statusMode === 'locked' && achievement.unlocked) return false;
     if (statusMode === 'unlocked' && !achievement.unlocked) return false;
-
     if (!query) return true;
+
     const haystack = [achievement.name, achievement.description, achievement.character, achievement.role, achievement.chapter]
       .join(' ')
       .toLowerCase();
@@ -436,10 +391,7 @@ function filterAdeptBrowser() {
   });
 
   state.filteredAdepts = sortAchievements(filtered, sortMode);
-  elements.adeptTableBody.innerHTML = buildAchievementRows(
-    state.filteredAdepts,
-    'No adepts match the current role, search, and filter settings.'
-  );
+  elements.adeptTableBody.innerHTML = buildAchievementRows(state.filteredAdepts, 'No adepts match the current role, search, and filter settings.');
   elements.adeptResultsCount.textContent = `${state.filteredAdepts.length} adept${state.filteredAdepts.length === 1 ? '' : 's'}`;
 }
 
@@ -464,11 +416,9 @@ function renderRandomPool(roleAdepts, lockedAdepts) {
     return;
   }
 
-  const chips = sortAchievements(lockedAdepts, 'release_order')
+  elements.randomPoolList.innerHTML = sortAchievements(lockedAdepts, 'release_order')
     .map((achievement) => `<span class="pool-chip">${escapeHtml(achievement.name)}</span>`)
     .join('');
-
-  elements.randomPoolList.innerHTML = chips;
 }
 
 function resetRandomCard() {
@@ -480,15 +430,11 @@ function updateRandomModule(resetCard = false) {
   const roleAdepts = getAdeptsForRole(state.randomRole);
   const lockedAdepts = roleAdepts.filter((item) => !item.unlocked);
   renderRandomPool(roleAdepts, lockedAdepts);
-
-  if (resetCard) {
-    resetRandomCard();
-  }
+  if (resetCard) resetRandomCard();
 }
 
 function pickRandomLockedAdept() {
   const lockedAdepts = getAdeptsForRole(state.randomRole).filter((achievement) => !achievement.unlocked);
-
   if (!lockedAdepts.length) {
     elements.randomAdeptCard.classList.remove('empty');
     elements.randomAdeptCard.innerHTML = `<p>You do not have any locked adepts for <strong>${escapeHtml(roleLabel(state.randomRole))}</strong>.</p>`;
@@ -528,19 +474,15 @@ function updateSummary(summary) {
   elements.summaryLocked.textContent = summary.locked;
   elements.summaryPercent.textContent = `${summary.completionPercent}%`;
   setProgress(elements.overallProgressFill, elements.overallProgressText, summary.unlocked, summary.total);
-
   elements.killerUnlocked.textContent = summary.roles.killer.unlocked;
   elements.killerTotal.textContent = summary.roles.killer.total;
   setProgress(elements.killerProgressFill, elements.killerProgressText, summary.roles.killer.unlocked, summary.roles.killer.total);
-
   elements.survivorUnlocked.textContent = summary.roles.survivor.unlocked;
   elements.survivorTotal.textContent = summary.roles.survivor.total;
   setProgress(elements.survivorProgressFill, elements.survivorProgressText, summary.roles.survivor.unlocked, summary.roles.survivor.total);
-
   elements.generalUnlocked.textContent = summary.roles.general.unlocked;
   elements.generalTotal.textContent = summary.roles.general.total;
   setProgress(elements.generalProgressFill, elements.generalProgressText, summary.roles.general.unlocked, summary.roles.general.total);
-
   elements.adeptUnlocked.textContent = summary.adept.unlocked;
   elements.adeptTotal.textContent = summary.adept.total;
   setProgress(elements.adeptProgressFill, elements.adeptProgressText, summary.adept.unlocked, summary.adept.total);
@@ -551,11 +493,7 @@ function showWorkspace() {
 }
 
 function slugifyFilePart(value) {
-  return String(value || 'profile')
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
-    .slice(0, 50) || 'profile';
+  return String(value || 'profile').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 50) || 'profile';
 }
 
 function fileTimestamp() {
@@ -578,10 +516,7 @@ function downloadFile(content, filename, mimeType) {
 
 function csvEscape(value) {
   const stringValue = value === null || value === undefined ? '' : String(value);
-  if (/[",\n]/.test(stringValue)) {
-    return `"${stringValue.replaceAll('"', '""')}"`;
-  }
-  return stringValue;
+  return /[",\n]/.test(stringValue) ? `"${stringValue.replaceAll('"', '""')}"` : stringValue;
 }
 
 function buildExportRows(dataset) {
@@ -616,107 +551,43 @@ function exportDataset(dataset, format, label) {
   }
 
   const headers = Object.keys(rows[0]);
-  const csv = [headers.join(',')]
-    .concat(rows.map((row) => headers.map((header) => csvEscape(row[header])).join(',')))
-    .join('\n');
+  const csv = [headers.join(',')].concat(rows.map((row) => headers.map((header) => csvEscape(row[header])).join(','))).join('\n');
   downloadFile(csv, `${base}.csv`, 'text/csv;charset=utf-8');
   showMessage(`Exported ${dataset.length} ${label} rows to CSV.`, 'success');
 }
 
-function getSavedProfiles() {
-  try {
-    const parsed = JSON.parse(localStorage.getItem(SAVED_PROFILES_KEY) || '[]');
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
-  }
+function setLoadingState(isLoading, isForceRefresh = false) {
+  elements.loadButton.disabled = isLoading;
+  elements.refreshButton.disabled = isLoading;
+  elements.loadButton.textContent = isLoading && !isForceRefresh ? 'Loading...' : 'Load achievements';
+  elements.refreshButton.textContent = isLoading && isForceRefresh ? 'Refreshing...' : 'Force refresh Steam';
 }
 
-function setSavedProfiles(profiles) {
-  localStorage.setItem(SAVED_PROFILES_KEY, JSON.stringify(profiles));
+function openAboutModal() {
+  elements.aboutModal.classList.remove('hidden');
+  elements.aboutModal.setAttribute('aria-hidden', 'false');
 }
 
-function renderSavedProfiles(selectedValue = '') {
-  const profiles = getSavedProfiles();
-  if (!profiles.length) {
-    elements.savedProfileSelect.innerHTML = '<option value="">No saved profiles yet</option>';
-    elements.loadSavedProfileButton.disabled = true;
-    elements.deleteSavedProfileButton.disabled = true;
-    return;
-  }
-
-  elements.savedProfileSelect.innerHTML = profiles
-    .map((profile) => {
-      const selected = profile.input === selectedValue ? ' selected' : '';
-      return `<option value="${escapeHtml(profile.input)}"${selected}>${escapeHtml(profile.label)}</option>`;
-    })
-    .join('');
-  elements.loadSavedProfileButton.disabled = false;
-  elements.deleteSavedProfileButton.disabled = false;
+function closeAboutModal() {
+  elements.aboutModal.classList.add('hidden');
+  elements.aboutModal.setAttribute('aria-hidden', 'true');
 }
 
-function saveCurrentProfile() {
-  const input = (state.currentProfile?.input || elements.profileInput.value || '').trim();
-  if (!input) {
-    showMessage('Load or enter a profile first, then save it.', 'error');
-    return;
-  }
-
-  const label = state.currentProfile?.profileName
-    ? `${state.currentProfile.profileName} — ${input}`
-    : input;
-
-  const profiles = getSavedProfiles().filter((profile) => profile.input.toLowerCase() !== input.toLowerCase());
-  profiles.unshift({ input, label });
-  setSavedProfiles(profiles.slice(0, 20));
-  renderSavedProfiles(input);
-  showMessage(`Saved profile: ${label}`, 'success');
-}
-
-function loadSelectedSavedProfile() {
-  const input = elements.savedProfileSelect.value;
-  if (!input) {
-    showMessage('Choose a saved profile first.', 'error');
-    return;
-  }
-  elements.profileInput.value = input;
-  loadAchievements(input);
-}
-
-function removeSelectedSavedProfile() {
-  const input = elements.savedProfileSelect.value;
-  if (!input) {
-    showMessage('Choose a saved profile first.', 'error');
-    return;
-  }
-
-  const profiles = getSavedProfiles().filter((profile) => profile.input !== input);
-  setSavedProfiles(profiles);
-  renderSavedProfiles(profiles[0]?.input || '');
-  showMessage('Removed saved profile.', 'success');
-}
-
-async function loadAchievements(profile) {
+async function loadAchievements(profile, forceRefresh = false) {
   hideMessage();
-  elements.loadButton.disabled = true;
-  elements.loadButton.textContent = 'Loading...';
+  setLoadingState(true, forceRefresh);
 
   try {
     const response = await fetch('/api/achievements', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ profile, forceRefresh: false }),
+      body: JSON.stringify({ profile, forceRefresh }),
     });
     const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.error || 'Failed to load achievements.');
-    }
+    if (!response.ok) throw new Error(data.error || 'Failed to load achievements.');
 
     state.achievements = data.achievements || [];
     state.currentProfile = data.profile;
-    localStorage.setItem('dbdProfileInput', profile);
-
     elements.profileName.textContent = data.profile.profileName || 'Unknown Steam user';
     elements.profileLink.textContent = data.profile.resolvedProfileUrl;
     elements.profileLink.href = data.profile.resolvedProfileUrl;
@@ -727,14 +598,16 @@ async function loadAchievements(profile) {
     filterAchievements();
     filterAdeptBrowser();
     updateRandomModule(true);
-    renderSavedProfiles(data.profile.input);
-
-    showMessage(`Loaded ${data.summary.total} achievements for ${data.profile.profileName}.`, 'success');
+    showMessage(
+      forceRefresh
+        ? `Refreshed ${data.summary.total} achievements from Steam for ${data.profile.profileName}.`
+        : `Loaded ${data.summary.total} achievements for ${data.profile.profileName}.`,
+      'success'
+    );
   } catch (error) {
     showMessage(error.message || 'Failed to load achievements.', 'error');
   } finally {
-    elements.loadButton.disabled = false;
-    elements.loadButton.textContent = 'Load achievements';
+    setLoadingState(false, false);
   }
 }
 
@@ -764,7 +637,30 @@ function attachEvents() {
       showMessage('Enter a Steam profile URL, SteamID64, or custom profile name.', 'error');
       return;
     }
-    loadAchievements(profile);
+    loadAchievements(profile, false);
+  });
+
+  elements.refreshButton.addEventListener('click', () => {
+    const profile = elements.profileInput.value.trim() || state.currentProfile?.input || '';
+    if (!profile) {
+      showMessage('Enter a Steam profile first, then force refresh.', 'error');
+      return;
+    }
+    if (!elements.profileInput.value.trim()) {
+      elements.profileInput.value = profile;
+    }
+    loadAchievements(profile, true);
+  });
+
+  elements.aboutButton.addEventListener('click', openAboutModal);
+  elements.aboutCloseButton.addEventListener('click', closeAboutModal);
+  elements.aboutModal.addEventListener('click', (event) => {
+    if (event.target === elements.aboutModal) closeAboutModal();
+  });
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && !elements.aboutModal.classList.contains('hidden')) {
+      closeAboutModal();
+    }
   });
 
   [elements.searchInput, elements.sortSelect, elements.statusFilter, elements.roleFilter, elements.excludeAdepts].forEach((element) => {
@@ -798,26 +694,9 @@ function attachEvents() {
   elements.exportBrowserJson.addEventListener('click', () => exportDataset(state.filteredAchievements, 'json', 'achievement-browser'));
   elements.exportAdeptCsv.addEventListener('click', () => exportDataset(state.filteredAdepts, 'csv', 'adept-browser'));
   elements.exportAdeptJson.addEventListener('click', () => exportDataset(state.filteredAdepts, 'json', 'adept-browser'));
-  elements.saveProfileButton.addEventListener('click', saveCurrentProfile);
-  elements.loadSavedProfileButton.addEventListener('click', loadSelectedSavedProfile);
-  elements.deleteSavedProfileButton.addEventListener('click', removeSelectedSavedProfile);
-  elements.savedProfileSelect.addEventListener('change', () => {
-    const disabled = !elements.savedProfileSelect.value;
-    elements.loadSavedProfileButton.disabled = disabled;
-    elements.deleteSavedProfileButton.disabled = disabled;
-  });
-}
-
-function hydrateLastProfile() {
-  const lastProfile = localStorage.getItem('dbdProfileInput');
-  if (lastProfile) {
-    elements.profileInput.value = lastProfile;
-  }
 }
 
 attachEvents();
-hydrateLastProfile();
-renderSavedProfiles();
 setQuickRole('all');
 setAdeptBrowserRole('killer');
 setRandomRole('killer');

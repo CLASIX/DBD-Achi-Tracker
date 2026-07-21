@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ app_version }} — Sign In</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  </head>
+  <body>
+    <main class="login-shell">
+      <section class="card login-card">
+        <p class="eyebrow">Protected instance</p>
+        <h1>{{ app_name }}</h1>
+        <p class="subtle">This hosted instance is password-protected. Enter the shared access password to continue.</p>
+
+        {% if error %}
+          <section class="message error">{{ error }}</section>
+        {% endif %}
+
+        <form method="post" class="login-form">
+          <input type="hidden" name="next" value="{{ next_url }}">
+          <label for="password">Access password</label>
+          <input id="password" name="password" type="password" autocomplete="current-password" required>
+          <button type="submit">Sign in</button>
+        </form>
+      </section>
+    </main>
+
+    <footer class="app-footer">
+      <div class="app-footer-inner">
+        <span>{{ app_version }}</span>
+        <span>Password protection enabled</span>
+      </div>
+    </footer>
+  </body>
+</html>

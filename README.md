@@ -1,6 +1,6 @@
 # DBD Achievement Tracker
 
-A Windows-friendly local app for scraping your completed **Dead by Daylight** achievements from a **public Steam profile**.
+A Windows-friendly and Render-friendly app for scraping your completed **Dead by Daylight** achievements from a **public Steam profile**.
 
 ## Current features
 
@@ -28,8 +28,10 @@ A Windows-friendly local app for scraping your completed **Dead by Daylight** ac
 - Splits adept tools into two separate modules:
   - **Adept Browser** for sorting/filtering/searching adepts
   - **Random Adept Picker** for drawing a random locked killer, survivor, or combined adept
-- Adds **saved profiles** stored locally in your browser
 - Adds **export to CSV/JSON** for the currently visible browser results and adept results
+- Adds a **force refresh** button to bypass cache and re-scrape Steam on demand
+- Adds an in-app **About / Changelog** modal
+- Supports optional **password protection** for hosted deployments
 - Uses **Waitress** instead of Flask's development server when you start it with `python app.py`
 - Adds **profile caching**, a **health endpoint**, and **basic rate limiting** for easier free hosting deployment
 
@@ -50,6 +52,14 @@ data/character_metadata.json
 ```
 
 Used for release/chapter sorting and character-linked UI details.
+
+### In-app changelog
+
+```text
+data/changelog.json
+```
+
+Used by the About / Changelog modal.
 
 ## Requirements
 
@@ -139,6 +149,10 @@ The app is ready to use these environment variables:
   - Default: `30`
 - `DBD_RATE_LIMIT_WINDOW_SECONDS`
   - Default: `60`
+- `DBD_ACCESS_PASSWORD`
+  - Optional. If set, the whole hosted app requires login.
+- `DBD_SECRET_KEY`
+  - Strongly recommended when using password protection.
 
 ### Using a `.env` file
 
@@ -149,11 +163,6 @@ A starter file is included here:
 ```text
 .env.example
 ```
-
-If your platform does **not** auto-load `.env` files into the process environment, then the current app will **not** read `.env` by itself. In that case you should either:
-
-1. add the variables in the host's environment variable dashboard, or
-2. ask me to add `python-dotenv` support in the code
 
 ### Notes about free hosting
 
@@ -190,9 +199,11 @@ static/
   styles.css
 templates/
   index.html
+  login.html
 data/
   achievement_overrides.json
   character_metadata.json
+  changelog.json
   global_achievements_cache.json
   profile_cache/              # created automatically at runtime
 VERSION.txt

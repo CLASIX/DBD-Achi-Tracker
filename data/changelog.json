@@ -1,0 +1,22 @@
+[
+  {
+    "version": "DBD-Achi-Tracker v1.2",
+    "date": "2026-07-21",
+    "items": [
+      "Added a force refresh button to bypass cache and pull fresh Steam data on demand.",
+      "Added an About / Changelog modal inside the app.",
+      "Added optional password protection for hosted deployments using environment variables.",
+      "Removed saved-profile storage and related web-only persistence.",
+      "Added visible versioning in the footer using the new DBD-Achi-Tracker naming scheme."
+    ]
+  },
+  {
+    "version": "DBD-Achi-Tracker v1.1",
+    "date": "2026-07-21",
+    "items": [
+      "Added the first footer-based version display.",
+      "Removed saved profile autofill behavior from the app.",
+      "Kept the hosted multi-user friendly setup on Render with Waitress."
+    ]
+  }
+]
