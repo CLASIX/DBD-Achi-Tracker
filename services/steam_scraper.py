@@ -269,6 +269,40 @@ def write_profile_cache(profile_input: str, data: dict[str, Any]) -> None:
     write_json_file(profile_cache_path(profile_input), payload)
 
 
+def clear_global_cache() -> bool:
+    if GLOBAL_CACHE_PATH.exists():
+        GLOBAL_CACHE_PATH.unlink()
+        return True
+    return False
+
+
+def clear_profile_cache(profile_input: str | None = None) -> int:
+    if profile_input:
+        cache_path = profile_cache_path(profile_input)
+        if cache_path.exists():
+            cache_path.unlink()
+            return 1
+        return 0
+
+    if not PROFILE_CACHE_DIR.exists():
+        return 0
+
+    removed = 0
+    for path in PROFILE_CACHE_DIR.glob('*.json'):
+        path.unlink()
+        removed += 1
+    return removed
+
+
+def get_cache_summary() -> dict[str, Any]:
+    profile_cache_count = len(list(PROFILE_CACHE_DIR.glob('*.json'))) if PROFILE_CACHE_DIR.exists() else 0
+    return {
+        'globalCacheExists': GLOBAL_CACHE_PATH.exists(),
+        'profileCacheCount': profile_cache_count,
+        'profileCacheTtlSeconds': int(get_profile_cache_ttl().total_seconds()),
+    }
+
+
 def fetch_global_achievements(force_refresh: bool = False) -> list[dict[str, Any]]:
     if not force_refresh:
         cached = read_global_cache()

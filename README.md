@@ -31,6 +31,10 @@ A Windows-friendly and Render-friendly app for scraping your completed **Dead by
 - Adds **export to CSV/JSON** for the currently visible browser results and adept results
 - Adds a **force refresh** button to bypass cache and re-scrape Steam on demand
 - Adds an in-app **About / Changelog** modal
+- Adds optional **Admin Tools** for:
+  - clearing caches
+  - editing achievement overrides from the UI
+  - saving and force-refreshing metadata changes
 - Supports optional **password protection** for hosted deployments
 - Uses **Waitress** instead of Flask's development server when you start it with `python app.py`
 - Adds **profile caching**, a **health endpoint**, and **basic rate limiting** for easier free hosting deployment
@@ -100,47 +104,26 @@ pip install -r requirements.txt
 python app.py
 ```
 
-## Free hosting: easiest path
+## Render deploy steps
 
-The easiest free hosting option for this app is:
-
-1. create a GitHub repository
-2. push this project to GitHub
-3. deploy it on **Render** as a Python web service
-
-This project already includes:
-
-- `render.yaml`
-- `Procfile`
-- `runtime.txt`
-- Waitress startup
-- `/health` endpoint
-- profile caching
-- simple in-memory rate limiting
-
-### Render deploy steps
-
-1. Create a new GitHub repo.
-2. Upload/push the contents of this project.
-3. Create a Render account.
-4. Choose **New Web Service**.
-5. Connect your GitHub repo.
-6. Render should detect the Python app. If needed, use:
+1. Create a GitHub repo.
+2. Push this project.
+3. Create a Render Web Service.
+4. Use:
 
 ```text
 Build command: pip install -r requirements.txt
 Start command: python app.py
 ```
 
-7. Set the free plan if available.
-8. Deploy.
+5. Deploy.
 
-### Render environment variables
+## Environment variables
 
-The app is ready to use these environment variables:
+The app supports these environment variables:
 
 - `PORT`
-  - Automatically used when supplied by the host.
+  - Automatically used when provided by the host.
 - `DBD_HOST`
   - Defaults to `0.0.0.0` when `PORT` exists, otherwise `127.0.0.1` locally.
 - `DBD_PROFILE_CACHE_TTL_SECONDS`
@@ -150,13 +133,15 @@ The app is ready to use these environment variables:
 - `DBD_RATE_LIMIT_WINDOW_SECONDS`
   - Default: `60`
 - `DBD_ACCESS_PASSWORD`
-  - Optional. If set, the whole hosted app requires login.
+  - Optional. If set, the whole site requires login.
 - `DBD_SECRET_KEY`
   - Strongly recommended when using password protection.
+- `DBD_ENABLE_ADMIN_TOOLS`
+  - Optional. Defaults to `1` when password protection is enabled, otherwise `0`.
 
-### Using a `.env` file
+## Using a `.env` file
 
-If your hosting platform reads a `.env` file and exposes those values as real environment variables, you do **not** need any code updates.
+If your host reads `.env` files and exposes them as real environment variables, no code changes are needed.
 
 A starter file is included here:
 
@@ -164,7 +149,7 @@ A starter file is included here:
 .env.example
 ```
 
-### Notes about free hosting
+## Notes about free hosting
 
 - Free hosts may sleep after inactivity.
 - The first request after sleeping may be slow.

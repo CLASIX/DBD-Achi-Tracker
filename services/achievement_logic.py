@@ -136,8 +136,7 @@ CHARACTER_POWER_RULES: list[tuple[str, str]] = [
 ]
 
 
-@lru_cache(maxsize=1)
-def load_achievement_overrides() -> dict[str, dict[str, Any]]:
+def read_overrides_file() -> dict[str, dict[str, Any]]:
     if not OVERRIDES_PATH.exists():
         return {}
 
@@ -146,6 +145,12 @@ def load_achievement_overrides() -> dict[str, dict[str, Any]]:
     except (json.JSONDecodeError, OSError):
         return {}
 
+    return raw if isinstance(raw, dict) else {}
+
+
+@lru_cache(maxsize=1)
+def load_achievement_overrides() -> dict[str, dict[str, Any]]:
+    raw = read_overrides_file()
     normalized: dict[str, dict[str, Any]] = {}
     for name, data in raw.items():
         if isinstance(data, dict):
@@ -153,8 +158,7 @@ def load_achievement_overrides() -> dict[str, dict[str, Any]]:
     return normalized
 
 
-@lru_cache(maxsize=1)
-def load_character_metadata() -> dict[str, dict[str, Any]]:
+def read_character_metadata_file() -> dict[str, Any]:
     if not CHARACTER_METADATA_PATH.exists():
         return {}
 
@@ -162,6 +166,13 @@ def load_character_metadata() -> dict[str, dict[str, Any]]:
         raw = json.loads(CHARACTER_METADATA_PATH.read_text(encoding="utf-8"))
     except (json.JSONDecodeError, OSError):
         return {}
+
+    return raw if isinstance(raw, dict) else {}
+
+
+@lru_cache(maxsize=1)
+def load_character_metadata() -> dict[str, dict[str, Any]]:
+    raw = read_character_metadata_file()
 
     normalized: dict[str, dict[str, Any]] = {}
     for name, data in raw.items():
@@ -324,6 +335,48 @@ def lookup_character_metadata(character: str | None) -> dict[str, Any] | None:
     if not character:
         return None
     return load_character_metadata().get(normalize_key(character))
+
+
+def refresh_metadata_caches() -> None:
+    load_achievement_overrides.cache_clear()
+    load_character_metadata.cache_clear()
+
+
+def upsert_achievement_override(name: str, payload: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    name = (name or "").strip()
+    if not name:
+        raise ValueError("Achievement name is required.")
+
+    existing = read_overrides_file()
+    cleaned: dict[str, Any] = {}
+    for key in ("role", "character", "chapter", "description"):
+        value = payload.get(key)
+        if isinstance(value, str) and value.strip():
+            cleaned[key] = value.strip()
+
+    release_order = payload.get("releaseOrder")
+    if release_order not in (None, ""):
+        try:
+            cleaned["releaseOrder"] = int(release_order)
+        except (TypeError, ValueError) as exc:
+            raise ValueError("Release order must be a number.") from exc
+
+    if cleaned:
+        existing[name] = cleaned
+    else:
+        existing.pop(name, None)
+
+    OVERRIDES_PATH.write_text(json.dumps(existing, indent=2, ensure_ascii=False), encoding="utf-8")
+    refresh_metadata_caches()
+    return existing
+
+
+def delete_achievement_override(name: str) -> dict[str, dict[str, Any]]:
+    existing = read_overrides_file()
+    existing.pop((name or "").strip(), None)
+    OVERRIDES_PATH.write_text(json.dumps(existing, indent=2, ensure_ascii=False), encoding="utf-8")
+    refresh_metadata_caches()
+    return existing
 
 
 def merge_achievements(

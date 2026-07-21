@@ -16,6 +16,9 @@ const state = {
   adeptBrowserRole: 'killer',
   randomRole: 'killer',
   currentProfile: null,
+  admin: {
+    status: null,
+  },
 };
 
 const elements = {
@@ -26,6 +29,22 @@ const elements = {
   aboutButton: document.getElementById('about-button'),
   aboutModal: document.getElementById('about-modal'),
   aboutCloseButton: document.getElementById('about-close-button'),
+  adminButton: document.getElementById('admin-button'),
+  adminModal: document.getElementById('admin-modal'),
+  adminCloseButton: document.getElementById('admin-close-button'),
+  adminCacheSummary: document.getElementById('admin-cache-summary'),
+  adminClearProfileCache: document.getElementById('admin-clear-profile-cache'),
+  adminClearGlobalCache: document.getElementById('admin-clear-global-cache'),
+  adminClearAllCache: document.getElementById('admin-clear-all-cache'),
+  adminAchievementSelect: document.getElementById('admin-achievement-select'),
+  adminRoleSelect: document.getElementById('admin-role-select'),
+  adminCharacterInput: document.getElementById('admin-character-input'),
+  adminChapterInput: document.getElementById('admin-chapter-input'),
+  adminReleaseOrderInput: document.getElementById('admin-release-order-input'),
+  adminDescriptionInput: document.getElementById('admin-description-input'),
+  adminSaveOverride: document.getElementById('admin-save-override'),
+  adminRemoveOverride: document.getElementById('admin-remove-override'),
+  adminSaveReload: document.getElementById('admin-save-reload'),
   message: document.getElementById('message'),
   workspace: document.getElementById('workspace'),
   profileName: document.getElementById('profile-name'),
@@ -101,6 +120,8 @@ const elements = {
   randomPoolList: document.getElementById('random-pool-list'),
 };
 
+const adminEnabled = Boolean(elements.adminButton && elements.adminModal);
+
 function showMessage(text, type = 'success') {
   elements.message.textContent = text;
   elements.message.classList.remove('hidden', 'error', 'success');
@@ -169,13 +190,7 @@ function setProgress(fillElement, textElement, numerator, denominator, emptyText
 
 function initialsFromCharacter(character) {
   if (!character) return '—';
-  return character
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0])
-    .join('')
-    .toUpperCase();
+  return character.split(/\s+/).filter(Boolean).slice(0, 2).map((part) => part[0]).join('').toUpperCase();
 }
 
 function avatarTheme(role) {
@@ -186,28 +201,24 @@ function avatarTheme(role) {
   }
 }
 
+function portraitSlug(character) {
+  if (!character) return 'no-linked-character';
+  return character
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '') || 'no-linked-character';
+}
+
 function getCharacterAvatar(character, role) {
   const key = `${role}:${character || 'none'}`;
   if (avatarCache.has(key)) return avatarCache.get(key);
 
-  const initials = initialsFromCharacter(character);
-  const theme = avatarTheme(role);
-  const svg = `
-    <svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 96 96">
-      <defs>
-        <linearGradient id="g" x1="0" x2="1" y1="0" y2="1">
-          <stop offset="0%" stop-color="${theme.a}" />
-          <stop offset="100%" stop-color="${theme.b}" />
-        </linearGradient>
-      </defs>
-      <rect width="96" height="96" rx="20" fill="#18202d"/>
-      <rect x="8" y="8" width="80" height="80" rx="18" fill="url(#g)" opacity="0.95"/>
-      <text x="48" y="57" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="30" font-weight="700" fill="#10141d">${initials}</text>
-    </svg>
-  `;
-  const uri = `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
-  avatarCache.set(key, uri);
-  return uri;
+  const slug = portraitSlug(character);
+  const staticPath = `/static/portraits/${slug}.svg`;
+  avatarCache.set(key, staticPath);
+  return staticPath;
 }
 
 function renderCharacterCell(achievement) {
@@ -215,7 +226,7 @@ function renderCharacterCell(achievement) {
   const chapter = achievement.chapter || 'No chapter tag';
   return `
     <div class="character-cell">
-      <img src="${escapeHtml(getCharacterAvatar(achievement.character, achievement.role))}" alt="${escapeHtml(character)} portrait">
+      <img src="${escapeHtml(getCharacterAvatar(achievement.character, achievement.role))}" alt="${escapeHtml(character)} portrait" onerror="this.onerror=null;this.src='/static/portraits/no-linked-character.svg';">
       <div>
         <strong>${escapeHtml(character)}</strong>
         <small>${escapeHtml(chapter)}</small>
@@ -270,9 +281,7 @@ function renderGlobalRateCell(value) {
 }
 
 function buildAchievementRows(items, emptyText) {
-  if (!items.length) {
-    return `<tr><td colspan="6">${escapeHtml(emptyText)}</td></tr>`;
-  }
+  if (!items.length) return `<tr><td colspan="6">${escapeHtml(emptyText)}</td></tr>`;
 
   return items.map((achievement) => `
     <tr>
@@ -317,6 +326,18 @@ function setActiveModule(moduleName) {
   });
 }
 
+function openModal(modal) {
+  if (!modal) return;
+  modal.classList.remove('hidden');
+  modal.setAttribute('aria-hidden', 'false');
+}
+
+function closeModal(modal) {
+  if (!modal) return;
+  modal.classList.add('hidden');
+  modal.setAttribute('aria-hidden', 'true');
+}
+
 function updateBrowserVisibleStats(items) {
   const unlocked = items.filter((item) => item.unlocked).length;
   const locked = items.length - unlocked;
@@ -343,10 +364,7 @@ function filterAchievements() {
     if (roleMode !== 'all' && achievement.role !== roleMode) return false;
     if (excludeAdepts && achievement.isAdept) return false;
     if (!query) return true;
-
-    const haystack = [achievement.name, achievement.description, achievement.role, achievement.character, achievement.chapter, achievement.unlocked ? 'unlocked' : 'locked']
-      .join(' ')
-      .toLowerCase();
+    const haystack = [achievement.name, achievement.description, achievement.role, achievement.character, achievement.chapter, achievement.unlocked ? 'unlocked' : 'locked'].join(' ').toLowerCase();
     return haystack.includes(query);
   });
 
@@ -383,10 +401,7 @@ function filterAdeptBrowser() {
     if (statusMode === 'locked' && achievement.unlocked) return false;
     if (statusMode === 'unlocked' && !achievement.unlocked) return false;
     if (!query) return true;
-
-    const haystack = [achievement.name, achievement.description, achievement.character, achievement.role, achievement.chapter]
-      .join(' ')
-      .toLowerCase();
+    const haystack = [achievement.name, achievement.description, achievement.character, achievement.role, achievement.chapter].join(' ').toLowerCase();
     return haystack.includes(query);
   });
 
@@ -457,7 +472,7 @@ function pickRandomLockedAdept() {
       <span class="badge adept">${escapeHtml(randomAchievement.character || 'Adept')}</span>
     </div>
     <div class="character-spotlight">
-      <img src="${escapeHtml(getCharacterAvatar(randomAchievement.character, randomAchievement.role))}" alt="${escapeHtml(randomAchievement.character || 'Character')} portrait">
+      <img src="${escapeHtml(getCharacterAvatar(randomAchievement.character, randomAchievement.role))}" alt="${escapeHtml(randomAchievement.character || 'Character')} portrait" onerror="this.onerror=null;this.src='/static/portraits/no-linked-character.svg';">
       <div>
         <strong>${escapeHtml(randomAchievement.character || 'No linked character')}</strong>
         <small>${escapeHtml(randomAchievement.chapter || 'No chapter tag')}</small>
@@ -563,14 +578,180 @@ function setLoadingState(isLoading, isForceRefresh = false) {
   elements.refreshButton.textContent = isLoading && isForceRefresh ? 'Refreshing...' : 'Force refresh Steam';
 }
 
-function openAboutModal() {
-  elements.aboutModal.classList.remove('hidden');
-  elements.aboutModal.setAttribute('aria-hidden', 'false');
+function setAdminControlsDisabled(disabled) {
+  if (!adminEnabled) return;
+  [
+    elements.adminClearProfileCache,
+    elements.adminClearGlobalCache,
+    elements.adminClearAllCache,
+    elements.adminAchievementSelect,
+    elements.adminRoleSelect,
+    elements.adminCharacterInput,
+    elements.adminChapterInput,
+    elements.adminReleaseOrderInput,
+    elements.adminDescriptionInput,
+    elements.adminSaveOverride,
+    elements.adminRemoveOverride,
+    elements.adminSaveReload,
+  ].forEach((element) => {
+    if (element) element.disabled = disabled;
+  });
 }
 
-function closeAboutModal() {
-  elements.aboutModal.classList.add('hidden');
-  elements.aboutModal.setAttribute('aria-hidden', 'true');
+function updateAdminCacheSummary(status) {
+  if (!adminEnabled || !status) return;
+  const cache = status.cache || {};
+  elements.adminCacheSummary.textContent = `Global cache: ${cache.globalCacheExists ? 'yes' : 'no'} • Profile caches: ${cache.profileCacheCount ?? 0} • Overrides: ${status.overrideCount ?? 0}`;
+}
+
+function populateAdminAchievementSelect() {
+  if (!adminEnabled) return;
+  const options = sortAchievements(state.achievements, 'name_asc');
+  if (!options.length) {
+    elements.adminAchievementSelect.innerHTML = '<option value="">Load a profile first</option>';
+    return;
+  }
+  elements.adminAchievementSelect.innerHTML = ['<option value="">Choose an achievement</option>']
+    .concat(options.map((achievement) => `<option value="${escapeHtml(achievement.name)}">${escapeHtml(achievement.name)}</option>`))
+    .join('');
+}
+
+function fillAdminFormFromAchievement(achievementName) {
+  if (!adminEnabled) return;
+  const achievement = state.achievements.find((item) => item.name === achievementName);
+  if (!achievement) {
+    elements.adminRoleSelect.value = '';
+    elements.adminCharacterInput.value = '';
+    elements.adminChapterInput.value = '';
+    elements.adminReleaseOrderInput.value = '';
+    elements.adminDescriptionInput.value = '';
+    return;
+  }
+
+  elements.adminRoleSelect.value = achievement.role || '';
+  elements.adminCharacterInput.value = achievement.character || '';
+  elements.adminChapterInput.value = achievement.chapter || '';
+  elements.adminReleaseOrderInput.value = achievement.releaseOrder ?? '';
+  elements.adminDescriptionInput.value = achievement.description || '';
+}
+
+async function fetchAdminStatus() {
+  if (!adminEnabled) return null;
+  const response = await fetch('/api/admin/status');
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.error || 'Failed to load admin status.');
+  state.admin.status = data;
+  updateAdminCacheSummary(data);
+  return data;
+}
+
+async function clearCache(target) {
+  const profile = state.currentProfile?.input || '';
+  const response = await fetch('/api/admin/cache/clear', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ target, profile }),
+  });
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.error || 'Failed to clear cache.');
+  state.admin.status = { ...(state.admin.status || {}), cache: data.cache, overrideCount: state.admin.status?.overrideCount ?? 0 };
+  updateAdminCacheSummary(state.admin.status);
+  return data;
+}
+
+async function saveOverride(shouldReload = false) {
+  const achievementName = elements.adminAchievementSelect.value;
+  if (!achievementName) {
+    showMessage('Choose an achievement first in Admin Tools.', 'error');
+    return;
+  }
+
+  const payload = {
+    achievementName,
+    role: elements.adminRoleSelect.value,
+    character: elements.adminCharacterInput.value,
+    chapter: elements.adminChapterInput.value,
+    releaseOrder: elements.adminReleaseOrderInput.value,
+    description: elements.adminDescriptionInput.value,
+  };
+
+  setAdminControlsDisabled(true);
+  try {
+    const response = await fetch('/api/admin/overrides', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || 'Failed to save override.');
+
+    if (state.admin.status) {
+      state.admin.status.overrideCount = data.overrideCount;
+      updateAdminCacheSummary(state.admin.status);
+    }
+
+    if (shouldReload && state.currentProfile?.input) {
+      await loadAchievements(state.currentProfile.input, true);
+      elements.adminAchievementSelect.value = achievementName;
+      fillAdminFormFromAchievement(achievementName);
+    }
+
+    showMessage(data.message || 'Override saved.', 'success');
+  } catch (error) {
+    showMessage(error.message || 'Failed to save override.', 'error');
+  } finally {
+    setAdminControlsDisabled(false);
+  }
+}
+
+async function removeOverride() {
+  const achievementName = elements.adminAchievementSelect.value;
+  if (!achievementName) {
+    showMessage('Choose an achievement first in Admin Tools.', 'error');
+    return;
+  }
+
+  setAdminControlsDisabled(true);
+  try {
+    const response = await fetch('/api/admin/overrides', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ achievementName }),
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || 'Failed to remove override.');
+
+    if (state.admin.status) {
+      state.admin.status.overrideCount = data.overrideCount;
+      updateAdminCacheSummary(state.admin.status);
+    }
+
+    if (state.currentProfile?.input) {
+      await loadAchievements(state.currentProfile.input, true);
+      elements.adminAchievementSelect.value = achievementName;
+      fillAdminFormFromAchievement(achievementName);
+    }
+
+    showMessage(data.message || 'Override removed.', 'success');
+  } catch (error) {
+    showMessage(error.message || 'Failed to remove override.', 'error');
+  } finally {
+    setAdminControlsDisabled(false);
+  }
+}
+
+async function openAdminModal() {
+  if (!adminEnabled) return;
+  openModal(elements.adminModal);
+  setAdminControlsDisabled(true);
+  try {
+    await fetchAdminStatus();
+    populateAdminAchievementSelect();
+  } catch (error) {
+    showMessage(error.message || 'Failed to open admin tools.', 'error');
+  } finally {
+    setAdminControlsDisabled(false);
+  }
 }
 
 async function loadAchievements(profile, forceRefresh = false) {
@@ -598,6 +779,8 @@ async function loadAchievements(profile, forceRefresh = false) {
     filterAchievements();
     filterAdeptBrowser();
     updateRandomModule(true);
+    populateAdminAchievementSelect();
+
     showMessage(
       forceRefresh
         ? `Refreshed ${data.summary.total} achievements from Steam for ${data.profile.profileName}.`
@@ -646,20 +829,56 @@ function attachEvents() {
       showMessage('Enter a Steam profile first, then force refresh.', 'error');
       return;
     }
-    if (!elements.profileInput.value.trim()) {
-      elements.profileInput.value = profile;
-    }
+    if (!elements.profileInput.value.trim()) elements.profileInput.value = profile;
     loadAchievements(profile, true);
   });
 
-  elements.aboutButton.addEventListener('click', openAboutModal);
-  elements.aboutCloseButton.addEventListener('click', closeAboutModal);
+  elements.aboutButton.addEventListener('click', () => openModal(elements.aboutModal));
+  elements.aboutCloseButton.addEventListener('click', () => closeModal(elements.aboutModal));
   elements.aboutModal.addEventListener('click', (event) => {
-    if (event.target === elements.aboutModal) closeAboutModal();
+    if (event.target === elements.aboutModal) closeModal(elements.aboutModal);
   });
+
+  if (adminEnabled) {
+    elements.adminButton.addEventListener('click', openAdminModal);
+    elements.adminCloseButton.addEventListener('click', () => closeModal(elements.adminModal));
+    elements.adminModal.addEventListener('click', (event) => {
+      if (event.target === elements.adminModal) closeModal(elements.adminModal);
+    });
+    elements.adminAchievementSelect.addEventListener('change', () => fillAdminFormFromAchievement(elements.adminAchievementSelect.value));
+    elements.adminClearProfileCache.addEventListener('click', async () => {
+      try {
+        const data = await clearCache('profiles');
+        showMessage(`Profile cache cleared (${data.clearedProfiles}).`, 'success');
+      } catch (error) {
+        showMessage(error.message || 'Failed to clear profile cache.', 'error');
+      }
+    });
+    elements.adminClearGlobalCache.addEventListener('click', async () => {
+      try {
+        await clearCache('global');
+        showMessage('Global cache cleared.', 'success');
+      } catch (error) {
+        showMessage(error.message || 'Failed to clear global cache.', 'error');
+      }
+    });
+    elements.adminClearAllCache.addEventListener('click', async () => {
+      try {
+        const data = await clearCache('all');
+        showMessage(`All caches cleared. Profile caches removed: ${data.clearedProfiles}.`, 'success');
+      } catch (error) {
+        showMessage(error.message || 'Failed to clear caches.', 'error');
+      }
+    });
+    elements.adminSaveOverride.addEventListener('click', () => saveOverride(false));
+    elements.adminSaveReload.addEventListener('click', () => saveOverride(true));
+    elements.adminRemoveOverride.addEventListener('click', removeOverride);
+  }
+
   document.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape' && !elements.aboutModal.classList.contains('hidden')) {
-      closeAboutModal();
+    if (event.key === 'Escape') {
+      closeModal(elements.aboutModal);
+      if (adminEnabled) closeModal(elements.adminModal);
     }
   });
 
@@ -668,27 +887,14 @@ function attachEvents() {
     element.addEventListener('change', filterAchievements);
   });
 
-  elements.quickRoleButtons.forEach((button) => {
-    button.addEventListener('click', () => setQuickRole(button.dataset.roleQuick));
-  });
-
+  elements.quickRoleButtons.forEach((button) => button.addEventListener('click', () => setQuickRole(button.dataset.roleQuick)));
   [elements.adeptSearchInput, elements.adeptSortSelect, elements.adeptStatusFilter].forEach((element) => {
     element.addEventListener('input', filterAdeptBrowser);
     element.addEventListener('change', filterAdeptBrowser);
   });
-
-  elements.adeptBrowserRoleButtons.forEach((button) => {
-    button.addEventListener('click', () => setAdeptBrowserRole(button.dataset.adeptBrowserRole));
-  });
-
-  elements.randomRoleButtons.forEach((button) => {
-    button.addEventListener('click', () => setRandomRole(button.dataset.randomRole));
-  });
-
-  elements.moduleTabs.forEach((button) => {
-    button.addEventListener('click', () => setActiveModule(button.dataset.moduleTarget));
-  });
-
+  elements.adeptBrowserRoleButtons.forEach((button) => button.addEventListener('click', () => setAdeptBrowserRole(button.dataset.adeptBrowserRole)));
+  elements.randomRoleButtons.forEach((button) => button.addEventListener('click', () => setRandomRole(button.dataset.randomRole)));
+  elements.moduleTabs.forEach((button) => button.addEventListener('click', () => setActiveModule(button.dataset.moduleTarget)));
   elements.randomAdeptButton.addEventListener('click', pickRandomLockedAdept);
   elements.exportBrowserCsv.addEventListener('click', () => exportDataset(state.filteredAchievements, 'csv', 'achievement-browser'));
   elements.exportBrowserJson.addEventListener('click', () => exportDataset(state.filteredAchievements, 'json', 'achievement-browser'));

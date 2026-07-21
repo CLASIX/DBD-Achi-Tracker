@@ -34,7 +34,7 @@ code {
   padding: 0.15rem 0.35rem;
   border-radius: 0.4rem;
 }
-button, input, select { font: inherit; }
+button, input, select, textarea { font: inherit; }
 
 .page-shell,
 .login-shell {
@@ -103,6 +103,9 @@ button, input, select { font: inherit; }
 .hero-actions {
   justify-content: flex-end;
 }
+.left-actions {
+  justify-content: flex-start;
+}
 
 .brand-icon,
 .card-icon,
@@ -170,7 +173,8 @@ label,
 }
 
 input,
-select {
+select,
+textarea {
   width: 100%;
   border: 1px solid var(--border);
   background: var(--panel-soft);
@@ -179,8 +183,13 @@ select {
   padding: 0.84rem 0.96rem;
   outline: none;
 }
+textarea {
+  resize: vertical;
+  min-height: 110px;
+}
 input:focus,
-select:focus {
+select:focus,
+textarea:focus {
   border-color: rgba(122, 144, 255, 0.75);
   box-shadow: 0 0 0 3px rgba(122, 144, 255, 0.15);
 }

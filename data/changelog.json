@@ -1,5 +1,17 @@
 [
   {
+    "version": "DBD-Achi-Tracker v1.3",
+    "date": "2026-07-21",
+    "items": [
+      "Added Admin Tools with cache controls and a manual achievement override editor.",
+      "Added an optional admin-tools toggle for hosted deployments.",
+      "Added a force refresh Steam button to the main header for easier cache bypassing.",
+      "Added an About / Changelog modal and site mode display.",
+      "Added optional password-protected private mode with login/logout flow.",
+      "Kept export tools, release/chapter sorting, adept modules, and hosted multi-user support."
+    ]
+  },
+  {
     "version": "DBD-Achi-Tracker v1.2",
     "date": "2026-07-21",
     "items": [

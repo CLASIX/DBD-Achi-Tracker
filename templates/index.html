@@ -40,6 +40,9 @@
           </div>
           <div class="hero-actions">
             <button id="about-button" class="secondary-button" type="button">About / Changelog</button>
+            {% if admin_tools_enabled %}
+              <button id="admin-button" class="secondary-button" type="button">Admin Tools</button>
+            {% endif %}
             {% if auth_required %}
               <a class="text-link-button" href="{{ url_for('logout') }}">Log out</a>
             {% endif %}
@@ -481,7 +484,12 @@
 
         <section class="modal-section">
           <h3>What this app does</h3>
-          <p class="subtle">This app scrapes public Steam Dead by Daylight achievement progress, classifies achievements by role/character, provides adept tools, and supports exportable filtered views.</p>
+          <p class="subtle">This app scrapes public Steam Dead by Daylight achievement progress, classifies achievements by role and character, provides adept tools, supports exportable filtered views, and can optionally run in private mode for friend groups.</p>
+        </section>
+
+        <section class="modal-section">
+          <h3>Instance mode</h3>
+          <p class="subtle">This deployment is currently running in <strong>{{ site_mode }}</strong> mode.</p>
         </section>
 
         <section class="modal-section">
@@ -505,10 +513,83 @@
       </div>
     </div>
 
+    {% if admin_tools_enabled %}
+    <div id="admin-modal" class="modal-overlay hidden" aria-hidden="true">
+      <div class="modal-card card" role="dialog" aria-modal="true" aria-labelledby="admin-modal-title">
+        <div class="section-header compact">
+          <div>
+            <p class="eyebrow">Admin</p>
+            <h2 id="admin-modal-title">Admin Tools</h2>
+            <p class="section-copy">Control caches and manually adjust achievement overrides for this hosted instance.</p>
+          </div>
+          <button id="admin-close-button" class="secondary-button" type="button">Close</button>
+        </div>
+
+        <section class="modal-section">
+          <div class="section-header compact">
+            <div>
+              <h3>Cache controls</h3>
+              <p class="section-copy">Useful when you want to bypass stored Steam scrape results for everyone.</p>
+            </div>
+            <p id="admin-cache-summary" class="results-count">Cache status unavailable</p>
+          </div>
+          <div class="module-actions left-actions">
+            <button id="admin-clear-profile-cache" class="secondary-button" type="button">Clear profile cache</button>
+            <button id="admin-clear-global-cache" class="secondary-button" type="button">Clear global cache</button>
+            <button id="admin-clear-all-cache" type="button">Clear all caches</button>
+          </div>
+        </section>
+
+        <section class="modal-section">
+          <h3>Manual override editor</h3>
+          <p class="section-copy">Pick an achievement from the currently loaded dataset, edit override fields, then save and reload.</p>
+          <div class="controls-grid">
+            <label>
+              Achievement
+              <select id="admin-achievement-select">
+                <option value="">Load a profile first</option>
+              </select>
+            </label>
+            <label>
+              Role override
+              <select id="admin-role-select">
+                <option value="">No override</option>
+                <option value="killer">Killer</option>
+                <option value="survivor">Survivor</option>
+                <option value="general">General</option>
+              </select>
+            </label>
+            <label>
+              Character override
+              <input id="admin-character-input" type="text" placeholder="Optional character override">
+            </label>
+            <label>
+              Chapter override
+              <input id="admin-chapter-input" type="text" placeholder="Optional chapter override">
+            </label>
+            <label>
+              Release order override
+              <input id="admin-release-order-input" type="number" min="1" step="1" placeholder="Optional numeric release order">
+            </label>
+          </div>
+          <label>
+            Description override
+            <textarea id="admin-description-input" rows="4" placeholder="Optional description override"></textarea>
+          </label>
+          <div class="module-actions left-actions">
+            <button id="admin-save-override" type="button">Save override</button>
+            <button id="admin-remove-override" class="secondary-button" type="button">Remove override</button>
+            <button id="admin-save-reload" class="secondary-button" type="button">Save and force refresh</button>
+          </div>
+        </section>
+      </div>
+    </div>
+    {% endif %}
+
     <footer class="app-footer">
       <div class="app-footer-inner">
         <span>{{ app_version }}</span>
-        <span>Hosted DBD achievement tracker</span>
+        <span>{{ site_mode }} mode</span>
       </div>
     </footer>
 

@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="192" height="192" viewBox="0 0 192 192">
+  <defs>
+    <linearGradient id="g" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#59dfb4"/>
+      <stop offset="100%" stop-color="#77f2d0"/>
+    </linearGradient>
+  </defs>
+  <rect width="192" height="192" rx="30" fill="#18202d"/>
+  <rect x="14" y="14" width="164" height="164" rx="26" fill="url(#g)" opacity="0.95"/>
+  <circle cx="96" cy="72" r="34" fill="#0f1218" opacity="0.18"/>
+  <text x="96" y="84" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="34" font-weight="800" fill="#10141d">J</text>
+  <text x="96" y="130" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="700" fill="#10141d">Jeff</text>
+  <text x="96" y="154" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="10" font-weight="600" fill="#10141d" opacity="0.85">Darkness Among Us</text>
+</svg>
