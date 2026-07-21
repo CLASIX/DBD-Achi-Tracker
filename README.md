@@ -30,7 +30,8 @@ A Windows-friendly local app for scraping your completed **Dead by Daylight** ac
   - **Random Adept Picker** for drawing a random locked killer, survivor, or combined adept
 - Adds **saved profiles** stored locally in your browser
 - Adds **export to CSV/JSON** for the currently visible browser results and adept results
-- Uses **Waitress** instead of Flask's development server when you start it with `python app.py`, so you do not get the development server warning
+- Uses **Waitress** instead of Flask's development server when you start it with `python app.py`
+- Adds **profile caching**, a **health endpoint**, and **basic rate limiting** for easier free hosting deployment
 
 ## Data files
 
@@ -52,7 +53,7 @@ Used for release/chapter sorting and character-linked UI details.
 
 ## Requirements
 
-- Windows 11
+- Windows 11 for local use
 - Python 3.11+ recommended
 - Internet connection
 - Public Steam profile
@@ -89,6 +90,63 @@ pip install -r requirements.txt
 python app.py
 ```
 
+## Free hosting: easiest path
+
+The easiest free hosting option for this app is:
+
+1. create a GitHub repository
+2. push this project to GitHub
+3. deploy it on **Render** as a Python web service
+
+This project already includes:
+
+- `render.yaml`
+- `Procfile`
+- `runtime.txt`
+- Waitress startup
+- `/health` endpoint
+- profile caching
+- simple in-memory rate limiting
+
+### Render deploy steps
+
+1. Create a new GitHub repo.
+2. Upload/push the contents of this project.
+3. Create a Render account.
+4. Choose **New Web Service**.
+5. Connect your GitHub repo.
+6. Render should detect the Python app. If needed, use:
+
+```text
+Build command: pip install -r requirements.txt
+Start command: python app.py
+```
+
+7. Set the free plan if available.
+8. Deploy.
+
+### Render environment variables
+
+The app is ready to use these environment variables:
+
+- `PORT`
+  - Automatically used when supplied by the host.
+- `DBD_HOST`
+  - Defaults to `0.0.0.0` when `PORT` exists, otherwise `127.0.0.1` locally.
+- `DBD_PROFILE_CACHE_TTL_SECONDS`
+  - Default: `900`
+- `DBD_RATE_LIMIT_MAX`
+  - Default: `30`
+- `DBD_RATE_LIMIT_WINDOW_SECONDS`
+  - Default: `60`
+
+### Notes about free hosting
+
+- Free hosts may sleep after inactivity.
+- The first request after sleeping may be slow.
+- Since this app scrapes Steam pages, avoid refreshing too aggressively.
+- The built-in rate limit is intentionally simple and intended mainly to protect a hobby deployment.
+
 ## Profile input formats supported
 
 You can enter any of these:
@@ -105,9 +163,13 @@ You can enter any of these:
 app.py
 requirements.txt
 start_windows.bat
+render.yaml
+Procfile
+runtime.txt
 services/
   steam_scraper.py
   achievement_logic.py
+  rate_limiter.py
 static/
   app.js
   styles.css
@@ -117,6 +179,7 @@ data/
   achievement_overrides.json
   character_metadata.json
   global_achievements_cache.json
+  profile_cache/              # created automatically at runtime
 VERSION.txt
 ```
 

@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: dbd-achievement-tracker
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python app.py
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: DBD_HOST
+        value: 0.0.0.0
+      - key: DBD_PROFILE_CACHE_TTL_SECONDS
+        value: 900
+      - key: DBD_RATE_LIMIT_MAX
+        value: 30
+      - key: DBD_RATE_LIMIT_WINDOW_SECONDS
+        value: 60

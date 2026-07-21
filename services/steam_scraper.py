@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import hashlib
 import json
+import os
 import re
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
@@ -12,8 +14,10 @@ from bs4 import BeautifulSoup
 
 APP_ID = 381210
 GLOBAL_ACHIEVEMENTS_URL = f"https://steamcommunity.com/stats/{APP_ID}/achievements/?l=english"
-GLOBAL_CACHE_PATH = Path(__file__).resolve().parent.parent / "data" / "global_achievements_cache.json"
-CACHE_TTL = timedelta(hours=24)
+DATA_DIR = Path(__file__).resolve().parent.parent / "data"
+GLOBAL_CACHE_PATH = DATA_DIR / "global_achievements_cache.json"
+PROFILE_CACHE_DIR = DATA_DIR / "profile_cache"
+GLOBAL_CACHE_TTL = timedelta(hours=24)
 REQUEST_HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36",
     "Accept-Language": "en-US,en;q=0.9",
@@ -32,6 +36,11 @@ class SteamScrapeError(Exception):
 
 def normalize_whitespace(value: str) -> str:
     return re.sub(r"\s+", " ", value.replace("\xa0", " ")).strip()
+
+
+def get_profile_cache_ttl() -> timedelta:
+    seconds = int(os.environ.get("DBD_PROFILE_CACHE_TTL_SECONDS", "900"))
+    return timedelta(seconds=max(0, seconds))
 
 
 def build_stats_url(profile_input: str) -> str:
@@ -178,13 +187,23 @@ def parse_personal_achievements(html: str, resolved_url: str) -> dict[str, Any]:
     }
 
 
-def read_global_cache() -> list[dict[str, Any]] | None:
-    if not GLOBAL_CACHE_PATH.exists():
+def read_json_file(path: Path) -> dict[str, Any] | None:
+    if not path.exists():
+        return None
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
         return None
 
-    try:
-        cached = json.loads(GLOBAL_CACHE_PATH.read_text(encoding="utf-8"))
-    except (json.JSONDecodeError, OSError):
+
+def write_json_file(path: Path, payload: dict[str, Any]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+
+
+def read_global_cache() -> list[dict[str, Any]] | None:
+    cached = read_json_file(GLOBAL_CACHE_PATH)
+    if not cached:
         return None
 
     fetched_at = cached.get("fetchedAt")
@@ -197,19 +216,57 @@ def read_global_cache() -> list[dict[str, Any]] | None:
     except ValueError:
         return None
 
-    if datetime.now(UTC) - fetched_at_dt > CACHE_TTL:
+    if datetime.now(UTC) - fetched_at_dt > GLOBAL_CACHE_TTL:
         return None
 
     return achievements
 
 
 def write_global_cache(achievements: list[dict[str, Any]]) -> None:
-    GLOBAL_CACHE_PATH.parent.mkdir(parents=True, exist_ok=True)
     payload = {
         "fetchedAt": datetime.now(UTC).isoformat(),
         "achievements": achievements,
     }
-    GLOBAL_CACHE_PATH.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+    write_json_file(GLOBAL_CACHE_PATH, payload)
+
+
+def profile_cache_path(profile_input: str) -> Path:
+    normalized = normalize_profile_input(profile_input)
+    digest = hashlib.sha256(normalized.encode("utf-8")).hexdigest()
+    return PROFILE_CACHE_DIR / f"{digest}.json"
+
+
+def read_profile_cache(profile_input: str) -> dict[str, Any] | None:
+    ttl = get_profile_cache_ttl()
+    if ttl <= timedelta(0):
+        return None
+
+    cached = read_json_file(profile_cache_path(profile_input))
+    if not cached:
+        return None
+
+    fetched_at = cached.get("fetchedAt")
+    data = cached.get("data")
+    if not fetched_at or not isinstance(data, dict):
+        return None
+
+    try:
+        fetched_at_dt = datetime.fromisoformat(fetched_at)
+    except ValueError:
+        return None
+
+    if datetime.now(UTC) - fetched_at_dt > ttl:
+        return None
+
+    return data
+
+
+def write_profile_cache(profile_input: str, data: dict[str, Any]) -> None:
+    payload = {
+        "fetchedAt": datetime.now(UTC).isoformat(),
+        "data": data,
+    }
+    write_json_file(profile_cache_path(profile_input), payload)
 
 
 def fetch_global_achievements(force_refresh: bool = False) -> list[dict[str, Any]]:
@@ -224,7 +281,14 @@ def fetch_global_achievements(force_refresh: bool = False) -> list[dict[str, Any
     return achievements
 
 
-def fetch_personal_achievements(profile_input: str) -> dict[str, Any]:
+def fetch_personal_achievements(profile_input: str, force_refresh: bool = False) -> dict[str, Any]:
+    if not force_refresh:
+        cached = read_profile_cache(profile_input)
+        if cached:
+            return cached
+
     stats_url = build_stats_url(profile_input)
     response = request_html(stats_url)
-    return parse_personal_achievements(response.text, response.url)
+    parsed = parse_personal_achievements(response.text, response.url)
+    write_profile_cache(profile_input, parsed)
+    return parsed
