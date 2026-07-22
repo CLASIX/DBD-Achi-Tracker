@@ -13,7 +13,9 @@ from services.achievement_logic import (
     delete_achievement_override,
     load_achievement_overrides,
     merge_achievements,
+    read_overrides_file,
     refresh_metadata_caches,
+    replace_achievement_overrides,
     upsert_achievement_override,
 )
 from services.rate_limiter import InMemoryRateLimiter
@@ -29,7 +31,7 @@ from services.steam_scraper import (
 BASE_DIR = Path(__file__).resolve().parent
 VERSION_FILE = BASE_DIR / "VERSION.txt"
 CHANGELOG_FILE = BASE_DIR / "data" / "changelog.json"
-APP_VERSION = VERSION_FILE.read_text(encoding="utf-8").strip() if VERSION_FILE.exists() else "DBD-Achi-Tracker v1.7"
+APP_VERSION = VERSION_FILE.read_text(encoding="utf-8").strip() if VERSION_FILE.exists() else "DBD-Achi-Tracker v2.0"
 APP_NAME = "DBD Achievement Tracker"
 ACCESS_PASSWORD = os.environ.get("DBD_ACCESS_PASSWORD", "").strip()
 AUTH_REQUIRED = bool(ACCESS_PASSWORD)
@@ -240,6 +242,29 @@ def reload_metadata_api():
 
     refresh_metadata_caches()
     return jsonify({"message": "Metadata caches refreshed."})
+
+
+@app.get("/api/admin/overrides/export")
+def export_overrides_api():
+    guard = admin_tools_guard()
+    if guard:
+        return guard
+    return jsonify({"overrides": read_overrides_file(), "overrideCount": len(load_achievement_overrides())})
+
+
+@app.post("/api/admin/overrides/import")
+def import_overrides_api():
+    guard = admin_tools_guard()
+    if guard:
+        return guard
+
+    payload = request.get_json(silent=True) or {}
+    try:
+        overrides = replace_achievement_overrides(payload.get("overrides") or {})
+    except ValueError as exc:
+        return jsonify({"error": str(exc)}), 400
+
+    return jsonify({"message": "Overrides replaced from JSON.", "overrideCount": len(overrides)})
 
 
 @app.post("/api/achievements")

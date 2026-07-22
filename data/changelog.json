@@ -1,6 +1,19 @@
 [
   {
-    "version": "DBD-Achi-Tracker v1.7",
+    "version": "DBD-Achi-Tracker v2.0",
+    "date": "2026-07-21",
+    "items": [
+      "Added compare history snapshots over time for friend-profile tracking.",
+      "Added challenge-board export tools for CSV, JSON, and share-card output.",
+      "Added richer admin tools including override export, override import, and metadata-cache refresh controls.",
+      "Added drag-and-drop goal ordering persistence and improved queue interactions.",
+      "Added profile, goal, leaderboard, and challenge-board share-card downloads.",
+      "Added a new unlock trend chart and expanded the compare and goals modules.",
+      "Adjusted loaded-profile panel spacing so the completion bar sits more comfortably above the smaller tiles."
+    ]
+  },
+  {
+    "version": "DBD-Achi-Tracker v1.8",
     "date": "2026-07-21",
     "items": [
       "Improved active button visibility across module tabs, filters, and selectors.",

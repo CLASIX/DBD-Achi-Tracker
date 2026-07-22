@@ -127,9 +127,22 @@ def parse_unlock_time(unlock_text: str) -> tuple[str | None, str | None]:
     if not cleaned:
         return None, None
 
-    for fmt in ("%b %d, %Y @ %I:%M%p", "%b %d, %Y @ %I:%M %p"):
+    explicit_year_formats = ("%b %d, %Y @ %I:%M%p", "%b %d, %Y @ %I:%M %p")
+    for fmt in explicit_year_formats:
         try:
             parsed = datetime.strptime(cleaned, fmt)
+            return parsed.isoformat(), cleaned
+        except ValueError:
+            continue
+
+    current_year = datetime.now().year
+    no_year_formats = ("%b %d @ %I:%M%p", "%b %d @ %I:%M %p")
+    for fmt in no_year_formats:
+        try:
+            parsed = datetime.strptime(cleaned, fmt).replace(year=current_year)
+            now = datetime.now()
+            if parsed > now + timedelta(days=2):
+                parsed = parsed.replace(year=current_year - 1)
             return parsed.isoformat(), cleaned
         except ValueError:
             continue
@@ -141,9 +154,16 @@ def parse_personal_achievements(html: str, resolved_url: str) -> dict[str, Any]:
     soup = BeautifulSoup(html, "html.parser")
     page_text = normalize_whitespace(soup.get_text(" ", strip=True))
 
-    if "this profile is private" in page_text.lower():
+    page_text_lower = page_text.lower()
+    title_lower = soup.title.get_text(" ", strip=True).lower() if soup.title else ""
+
+    if (
+        "this profile is private" in page_text_lower
+        or "game details are private" in page_text_lower
+        or "profile is private" in page_text_lower
+    ):
         raise SteamScrapeError(private_profile_message())
-    if "error" in (soup.title.get_text(" ", strip=True).lower() if soup.title else ""):
+    if "error" in title_lower:
         raise SteamScrapeError(private_profile_message())
 
     rows = soup.select(".achieveRow")

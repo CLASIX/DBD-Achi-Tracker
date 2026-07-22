@@ -7,7 +7,11 @@ const PLACEHOLDER_ICON = `data:image/svg+xml;utf8,${encodeURIComponent(`
 `)}`;
 
 const THEME_STORAGE_KEY = 'dbdTheme';
+const OVERLAY_STORAGE_KEY = 'dbdOverlayMode';
 const GOALS_STORAGE_KEY = 'dbdPinnedGoals';
+const COMPARE_STORAGE_KEY = 'dbdCompareProfiles';
+const COMPARE_HISTORY_STORAGE_KEY = 'dbdCompareHistory';
+const CHALLENGE_BOARD_STORAGE_KEY = 'dbdChallengeBoard';
 const avatarCache = new Map();
 
 const state = {
@@ -18,13 +22,19 @@ const state = {
   adeptBrowserRole: 'killer',
   randomRole: 'killer',
   browserView: 'table',
+  rarityFilter: 'all',
+  extraFilter: 'all',
+  overlayMode: false,
   currentProfile: null,
   currentSummary: null,
-  compareProfiles: [],
+  compareProfiles: loadCompareProfiles(),
+  compareHistory: loadCompareHistory(),
+  challengeBoard: loadChallengeBoard(),
   pinnedGoals: loadPinnedGoals(),
   admin: {
     status: null,
   },
+  dragGoalIndex: null,
 };
 
 const elements = {
@@ -32,10 +42,19 @@ const elements = {
   profileInput: document.getElementById('profile-input'),
   loadButton: document.getElementById('load-button'),
   refreshButton: document.getElementById('refresh-button'),
+  overlayToggleButton: document.getElementById('overlay-toggle-button'),
   themeSelect: document.getElementById('theme-select'),
   aboutButton: document.getElementById('about-button'),
   aboutModal: document.getElementById('about-modal'),
   aboutCloseButton: document.getElementById('about-close-button'),
+  stateExportButton: document.getElementById('state-export-button'),
+  stateImportInput: document.getElementById('state-import-input'),
+  stateImportButton: document.getElementById('state-import-button'),
+  achievementModal: document.getElementById('achievement-modal'),
+  achievementCloseButton: document.getElementById('achievement-close-button'),
+  achievementModalTitle: document.getElementById('achievement-modal-title'),
+  achievementModalSubtitle: document.getElementById('achievement-modal-subtitle'),
+  achievementModalBody: document.getElementById('achievement-modal-body'),
   adminButton: document.getElementById('admin-button'),
   adminModal: document.getElementById('admin-modal'),
   adminCloseButton: document.getElementById('admin-close-button'),
@@ -43,6 +62,10 @@ const elements = {
   adminClearProfileCache: document.getElementById('admin-clear-profile-cache'),
   adminClearGlobalCache: document.getElementById('admin-clear-global-cache'),
   adminClearAllCache: document.getElementById('admin-clear-all-cache'),
+  adminReloadMetadata: document.getElementById('admin-reload-metadata'),
+  adminExportOverrides: document.getElementById('admin-export-overrides'),
+  adminImportJsonInput: document.getElementById('admin-import-json-input'),
+  adminImportOverrides: document.getElementById('admin-import-overrides'),
   adminAchievementSelect: document.getElementById('admin-achievement-select'),
   adminRoleSelect: document.getElementById('admin-role-select'),
   adminCharacterInput: document.getElementById('admin-character-input'),
@@ -86,6 +109,7 @@ const elements = {
     goals: document.getElementById('module-goals'),
     compare: document.getElementById('module-compare'),
     insights: document.getElementById('module-insights'),
+    events: document.getElementById('module-events'),
   },
   resultsCount: document.getElementById('results-count'),
   browserVisibleTotal: document.getElementById('browser-visible-total'),
@@ -100,6 +124,8 @@ const elements = {
   roleFilter: document.getElementById('role-filter'),
   browserViewSelect: document.getElementById('browser-view-select'),
   excludeAdepts: document.getElementById('exclude-adepts'),
+  rarityFilterButtons: [...document.querySelectorAll('[data-rarity-filter]')],
+  extraFilterButtons: [...document.querySelectorAll('[data-extra-filter]')],
   quickRoleButtons: [...document.querySelectorAll('[data-role-quick]')],
   achievementTableBody: document.getElementById('achievement-table-body'),
   browserTableWrap: document.getElementById('browser-table-wrap'),
@@ -131,28 +157,52 @@ const elements = {
   randomAdeptCard: document.getElementById('random-adept-card'),
   randomPoolCaption: document.getElementById('random-pool-caption'),
   randomPoolList: document.getElementById('random-pool-list'),
+  rouletteSpinButton: document.getElementById('roulette-spin-button'),
+  rouletteWheel: document.getElementById('roulette-wheel'),
+  rouletteCenterLabel: document.getElementById('roulette-center-label'),
+  rouletteResultCard: document.getElementById('roulette-result-card'),
   goalsCount: document.getElementById('goals-count'),
   goalsList: document.getElementById('goals-list'),
   goalsClearButton: document.getElementById('goals-clear-button'),
   goalsRandomButton: document.getElementById('goals-random-button'),
   goalsRecommendButton: document.getElementById('goals-recommend-button'),
+  goalsShareButton: document.getElementById('goals-share-button'),
   goalsFocusSelect: document.getElementById('goals-focus-select'),
   goalsModeSelect: document.getElementById('goals-mode-select'),
   goalsRandomCard: document.getElementById('goals-random-card'),
   goalsSmartCard: document.getElementById('goals-smart-card'),
+  challengeFriendInput: document.getElementById('challenge-friend-input'),
+  challengeAchievementSelect: document.getElementById('challenge-achievement-select'),
+  challengeAddButton: document.getElementById('challenge-add-button'),
+  challengeExportJsonButton: document.getElementById('challenge-export-json-button'),
+  challengeExportCsvButton: document.getElementById('challenge-export-csv-button'),
+  challengeShareButton: document.getElementById('challenge-share-button'),
+  challengeClearDoneButton: document.getElementById('challenge-clear-done-button'),
+  challengeBoardList: document.getElementById('challenge-board-list'),
+  challengeBoardCount: document.getElementById('challenge-board-count'),
   compareProfileInput: document.getElementById('compare-profile-input'),
   compareAddButton: document.getElementById('compare-add-button'),
   compareAddCurrentButton: document.getElementById('compare-add-current-button'),
   compareClearButton: document.getElementById('compare-clear-button'),
+  compareShareButton: document.getElementById('compare-share-button'),
   compareTableBody: document.getElementById('compare-table-body'),
   compareCount: document.getElementById('compare-count'),
+  compareHistoryCount: document.getElementById('compare-history-count'),
+  compareHistoryList: document.getElementById('compare-history-list'),
   compareTopProfile: document.getElementById('compare-top-profile'),
   compareAverageCompletion: document.getElementById('compare-average-completion'),
   compareBestAdepts: document.getElementById('compare-best-adepts'),
+  shareProfileButton: document.getElementById('share-profile-button'),
   roleChart: document.getElementById('role-chart'),
   rarityChart: document.getElementById('rarity-chart'),
+  trendChart: document.getElementById('trend-chart'),
   unlockHeatmap: document.getElementById('unlock-heatmap'),
   chapterSummaryList: document.getElementById('chapter-summary-list'),
+  insightsShareButton: document.getElementById('insights-share-button'),
+  eventsFilterSelect: document.getElementById('events-filter-select'),
+  eventsStatusSelect: document.getElementById('events-status-select'),
+  eventsList: document.getElementById('events-list'),
+  eventsCount: document.getElementById('events-count'),
 };
 
 const adminEnabled = Boolean(elements.adminButton && elements.adminModal);
@@ -168,6 +218,47 @@ function loadPinnedGoals() {
 
 function savePinnedGoals() {
   localStorage.setItem(GOALS_STORAGE_KEY, JSON.stringify(state.pinnedGoals));
+}
+
+function loadCompareProfiles() {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(COMPARE_STORAGE_KEY) || '[]');
+    return Array.isArray(parsed)
+      ? parsed.sort((a, b) => (b.completionPercent || 0) - (a.completionPercent || 0))
+      : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveCompareProfiles() {
+  localStorage.setItem(COMPARE_STORAGE_KEY, JSON.stringify(state.compareProfiles));
+}
+
+function loadCompareHistory() {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(COMPARE_HISTORY_STORAGE_KEY) || '[]');
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveCompareHistory() {
+  localStorage.setItem(COMPARE_HISTORY_STORAGE_KEY, JSON.stringify(state.compareHistory));
+}
+
+function loadChallengeBoard() {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(CHALLENGE_BOARD_STORAGE_KEY) || '[]');
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveChallengeBoard() {
+  localStorage.setItem(CHALLENGE_BOARD_STORAGE_KEY, JSON.stringify(state.challengeBoard));
 }
 
 function showMessage(text, type = 'success') {
@@ -349,7 +440,7 @@ function buildAchievementRows(items, emptyText) {
 
   return items.map((achievement) => `
     <tr>
-      <td>
+      <td data-label="Achievement">
         <div class="achievement-name">
           <img src="${escapeHtml(getIconSrc(achievement.icon))}" alt="${escapeHtml(achievement.name)} icon">
           <div>
@@ -358,17 +449,51 @@ function buildAchievementRows(items, emptyText) {
             <div class="meta-row">
               ${adeptBadge(achievement.isAdept)}
               ${renderPinButton(achievement.name)}
+              <button class="mini-action" type="button" data-open-achievement="${escapeHtml(achievement.name)}">Details</button>
             </div>
           </div>
         </div>
       </td>
-      <td>${roleBadge(achievement.role)}</td>
-      <td>${renderCharacterCell(achievement)}</td>
-      <td>${statusBadge(achievement.unlocked)}</td>
-      <td>${escapeHtml(progressText(achievement))}</td>
-      <td>${renderGlobalRateCell(achievement.globalPercent)}</td>
+      <td data-label="Role">${roleBadge(achievement.role)}</td>
+      <td data-label="Character / Chapter">${renderCharacterCell(achievement)}</td>
+      <td data-label="Status">${statusBadge(achievement.unlocked)}</td>
+      <td data-label="Unlocked / Progress">${escapeHtml(progressText(achievement))}</td>
+      <td data-label="Global %">${renderGlobalRateCell(achievement.globalPercent)}</td>
     </tr>
   `).join('');
+}
+
+function openAchievementModalByName(name) {
+  const achievement = state.achievements.find((item) => item.name === name);
+  if (!achievement || !elements.achievementModalBody) return;
+
+  elements.achievementModalTitle.textContent = achievement.name;
+  elements.achievementModalSubtitle.textContent = `${roleLabel(achievement.role)} • ${achievement.chapter || 'No chapter tag'}`;
+  elements.achievementModalBody.innerHTML = `
+    <div class="achievement-detail-layout">
+      <div class="achievement-detail-hero">
+        <img src="${escapeHtml(getIconSrc(achievement.icon))}" alt="${escapeHtml(achievement.name)} icon">
+        <div>
+          <div class="meta-row">
+            ${roleBadge(achievement.role)}
+            ${statusBadge(achievement.unlocked)}
+            ${adeptBadge(achievement.isAdept)}
+          </div>
+          <p class="goal-description">${escapeHtml(achievement.description || 'No description available.')}</p>
+        </div>
+      </div>
+      <div class="module-stat-row">
+        <article class="mini-stat"><span>Character</span><strong>${escapeHtml(achievement.character || '—')}</strong></article>
+        <article class="mini-stat"><span>Chapter</span><strong>${escapeHtml(achievement.chapter || '—')}</strong></article>
+        <article class="mini-stat"><span>Unlocked / Progress</span><strong>${escapeHtml(progressText(achievement))}</strong></article>
+        <article class="mini-stat"><span>Global %</span><strong>${escapeHtml(formatPercent(achievement.globalPercent))}</strong></article>
+      </div>
+      <div class="module-actions left-actions">
+        ${renderPinButton(achievement.name)}
+      </div>
+    </div>
+  `;
+  openModal(elements.achievementModal);
 }
 
 function buildChapterGroups(items) {
@@ -415,9 +540,76 @@ function buildChapterGroups(items) {
   }).join('');
 }
 
+function eventCategoryForAchievement(achievement) {
+  const haystack = `${achievement.name} ${achievement.description} ${achievement.chapter}`.toLowerCase();
+  if (/holiday|mystery boxes|winter|bloodweb|gift/.test(haystack)) return 'holiday';
+  if (/tanuki|guardian|secret|yamaoka|hatch|key|map/.test(haystack)) return 'secret';
+  if (/special item|visceral|limited item|offering|special condition/.test(haystack)) return 'special';
+  return null;
+}
+
+function renderEventsModule() {
+  if (!elements.eventsList || !elements.eventsCount) return;
+  const filter = elements.eventsFilterSelect.value;
+  const status = elements.eventsStatusSelect.value;
+  const items = state.achievements.filter((achievement) => {
+    const category = eventCategoryForAchievement(achievement);
+    if (!category) return false;
+    if (filter !== 'all' && category !== filter) return false;
+    if (status === 'locked' && achievement.unlocked) return false;
+    if (status === 'unlocked' && !achievement.unlocked) return false;
+    return true;
+  });
+  elements.eventsCount.textContent = `${items.length} event achievement${items.length === 1 ? '' : 's'}`;
+  if (!items.length) {
+    elements.eventsList.innerHTML = '<div class="group-card"><p>No event-style achievements match this filter.</p></div>';
+    return;
+  }
+  const grouped = new Map();
+  for (const achievement of items) {
+    const category = eventCategoryForAchievement(achievement);
+    if (!grouped.has(category)) grouped.set(category, []);
+    grouped.get(category).push(achievement);
+  }
+  elements.eventsList.innerHTML = [...grouped.entries()].map(([category, list]) => {
+    const unlocked = list.filter((item) => item.unlocked).length;
+    return `
+      <article class="group-card">
+        <div class="section-header compact">
+          <div>
+            <p class="eyebrow">Event group</p>
+            <h3>${escapeHtml(titleCase(category))}</h3>
+          </div>
+          <p class="results-count">${unlocked}/${list.length} unlocked</p>
+        </div>
+        <div class="chapter-items">
+          ${sortAchievements(list, 'name_asc').map((achievement) => `
+            <div class="chapter-item">
+              <div>
+                <strong>${escapeHtml(achievement.name)}</strong>
+                <small>${escapeHtml(achievement.chapter || achievement.description)}</small>
+              </div>
+              <div class="chapter-item-actions">
+                ${statusBadge(achievement.unlocked)}
+                <button class="mini-action" type="button" data-open-achievement="${escapeHtml(achievement.name)}">Details</button>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </article>
+    `;
+  }).join('');
+}
+
 function syncQuickRoleButtons(role) {
   elements.quickRoleButtons.forEach((button) => {
     button.classList.toggle('active', button.dataset.roleQuick === role);
+  });
+}
+
+function syncChoiceButtons(buttons, activeValue, key) {
+  buttons.forEach((button) => {
+    button.classList.toggle('active', button.dataset[key] === activeValue);
   });
 }
 
@@ -480,12 +672,24 @@ function filterAchievements() {
   state.browserView = elements.browserViewSelect.value;
 
   syncQuickRoleButtons(roleMode);
+  syncChoiceButtons(elements.rarityFilterButtons, state.rarityFilter, 'rarityFilter');
+  syncChoiceButtons(elements.extraFilterButtons, state.extraFilter, 'extraFilter');
 
   const filtered = state.achievements.filter((achievement) => {
     if (statusMode === 'unlocked' && !achievement.unlocked) return false;
     if (statusMode === 'locked' && achievement.unlocked) return false;
     if (roleMode !== 'all' && achievement.role !== roleMode) return false;
     if (excludeAdepts && achievement.isAdept) return false;
+
+    const pct = Number(achievement.globalPercent ?? -1);
+    if (state.rarityFilter === 'ultra' && !(pct >= 0 && pct < 2)) return false;
+    if (state.rarityFilter === 'rare' && !(pct >= 2 && pct < 5)) return false;
+    if (state.rarityFilter === 'common' && !(pct >= 5)) return false;
+
+    if (state.extraFilter === 'has-character' && !achievement.character) return false;
+    if (state.extraFilter === 'date-known' && !achievement.unlockDate) return false;
+    if (state.extraFilter === 'event' && !eventCategoryForAchievement(achievement)) return false;
+
     if (!query) return true;
     const haystack = [achievement.name, achievement.description, achievement.role, achievement.character, achievement.chapter, achievement.unlocked ? 'unlocked' : 'locked'].join(' ').toLowerCase();
     return haystack.includes(query);
@@ -696,6 +900,167 @@ function exportDataset(dataset, format, label) {
   showMessage(`Exported ${dataset.length} ${label} rows to CSV.`, 'success');
 }
 
+function buildShareCardSvg({ title, subtitle = '', lines = [], footer = 'DBD-Achi-Tracker', accent = '#57d2ff' }) {
+  const safe = (value) => String(value).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const lineNodes = lines.map((line, index) => `<text x="60" y="${240 + index * 54}" fill="#edf3ff" font-size="28" font-family="Inter, Segoe UI, Arial">${safe(line)}</text>`).join('');
+  return `
+    <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+      <defs>
+        <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+          <stop offset="0%" stop-color="#141c29"/>
+          <stop offset="100%" stop-color="#0d1118"/>
+        </linearGradient>
+        <linearGradient id="accent" x1="0" x2="1" y1="0" y2="1">
+          <stop offset="0%" stop-color="${accent}"/>
+          <stop offset="100%" stop-color="#7a90ff"/>
+        </linearGradient>
+      </defs>
+      <rect width="1200" height="630" rx="34" fill="url(#bg)"/>
+      <rect x="40" y="40" width="1120" height="550" rx="28" fill="#141a24" stroke="rgba(255,255,255,0.08)"/>
+      <circle cx="1050" cy="110" r="90" fill="url(#accent)" opacity="0.25"/>
+      <rect x="60" y="72" width="220" height="14" rx="7" fill="url(#accent)"/>
+      <text x="60" y="150" fill="#edf3ff" font-size="56" font-weight="800" font-family="Inter, Segoe UI, Arial">${safe(title)}</text>
+      <text x="60" y="200" fill="#aeb9d3" font-size="24" font-family="Inter, Segoe UI, Arial">${safe(subtitle)}</text>
+      ${lineNodes}
+      <text x="60" y="560" fill="#aeb9d3" font-size="20" font-family="Inter, Segoe UI, Arial">${safe(footer)}</text>
+    </svg>
+  `;
+}
+
+function downloadShareCard({ fileName, title, subtitle, lines, footer, accent }) {
+  const svg = buildShareCardSvg({ title, subtitle, lines, footer, accent });
+  const blob = new Blob([svg], { type: 'image/svg+xml;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const image = new Image();
+  image.onload = () => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 1200;
+    canvas.height = 630;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(image, 0, 0);
+    URL.revokeObjectURL(url);
+    canvas.toBlob((pngBlob) => {
+      if (!pngBlob) {
+        showMessage('Failed to build share card.', 'error');
+        return;
+      }
+      const pngUrl = URL.createObjectURL(pngBlob);
+      const link = document.createElement('a');
+      link.href = pngUrl;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      setTimeout(() => URL.revokeObjectURL(pngUrl), 0);
+    }, 'image/png');
+  };
+  image.onerror = () => {
+    URL.revokeObjectURL(url);
+    showMessage('Failed to build share card.', 'error');
+  };
+  image.src = url;
+}
+
+function shareCurrentProfileCard() {
+  if (!state.currentProfile || !state.currentSummary) {
+    showMessage('Load a profile first before making a share card.', 'error');
+    return;
+  }
+  downloadShareCard({
+    fileName: `${slugifyFilePart(state.currentProfile.profileName)}_profile-card_${fileTimestamp()}.png`,
+    title: state.currentProfile.profileName,
+    subtitle: 'Dead by Daylight achievement progress',
+    lines: [
+      `Completion: ${state.currentSummary.completionPercent}%`,
+      `Unlocked: ${state.currentSummary.unlocked}/${state.currentSummary.total}`,
+      `Adepts: ${state.currentSummary.adept.unlocked}/${state.currentSummary.adept.total}`,
+      `Killer: ${state.currentSummary.roles.killer.unlocked}/${state.currentSummary.roles.killer.total} • Survivor: ${state.currentSummary.roles.survivor.unlocked}/${state.currentSummary.roles.survivor.total}`,
+    ],
+    footer: 'DBD-Achi-Tracker profile card',
+    accent: '#57d2ff',
+  });
+}
+
+function shareLeaderboardCard() {
+  if (!state.compareProfiles.length) {
+    showMessage('Add profiles to compare before generating a leaderboard share card.', 'error');
+    return;
+  }
+  const top = state.compareProfiles.slice(0, 5);
+  downloadShareCard({
+    fileName: `compare_leaderboard_${fileTimestamp()}.png`,
+    title: 'DBD Friend Leaderboard',
+    subtitle: 'Top completion standings',
+    lines: top.map((profile, index) => `${index + 1}. ${profile.profileName} — ${formatPercent(profile.completionPercent)}`),
+    footer: 'DBD-Achi-Tracker compare card',
+    accent: '#ffcd66',
+  });
+}
+
+function shareGoalCard() {
+  const goals = resolvePinnedGoalAchievements();
+  if (!goals.length) {
+    showMessage('Pin at least one goal before making a goal share card.', 'error');
+    return;
+  }
+  const goal = goals.find((item) => !item.unlocked) || goals[0];
+  downloadShareCard({
+    fileName: `${slugifyFilePart(goal.name)}_goal-card_${fileTimestamp()}.png`,
+    title: goal.name,
+    subtitle: 'Tonight\'s DBD grind target',
+    lines: [
+      `Role: ${roleLabel(goal.role)}`,
+      `Character: ${goal.character || 'No linked character'}`,
+      `Chapter: ${goal.chapter || 'No chapter tag'}`,
+      `Global rate: ${formatPercent(goal.globalPercent)}`,
+    ],
+    footer: 'DBD-Achi-Tracker goal card',
+    accent: '#59dfb4',
+  });
+}
+
+function exportChallengeBoard(format) {
+  if (!state.challengeBoard.length) {
+    showMessage('No challenge board entries to export.', 'error');
+    return;
+  }
+  const rows = state.challengeBoard.map((item) => ({
+    friendName: item.friendName,
+    achievementName: item.achievementName,
+    role: item.role,
+    character: item.character || '',
+    chapter: item.chapter || '',
+    completed: item.completed,
+    createdAt: new Date(item.createdAt).toISOString(),
+  }));
+  const base = `challenge-board_${fileTimestamp()}`;
+  if (format === 'json') {
+    downloadFile(JSON.stringify(rows, null, 2), `${base}.json`, 'application/json');
+    showMessage('Exported challenge board JSON.', 'success');
+    return;
+  }
+  const headers = Object.keys(rows[0]);
+  const csv = [headers.join(',')].concat(rows.map((row) => headers.map((header) => csvEscape(row[header])).join(','))).join('\n');
+  downloadFile(csv, `${base}.csv`, 'text/csv;charset=utf-8');
+  showMessage('Exported challenge board CSV.', 'success');
+}
+
+function shareChallengeBoardCard() {
+  if (!state.challengeBoard.length) {
+    showMessage('No challenge board entries to share yet.', 'error');
+    return;
+  }
+  const top = state.challengeBoard.slice(0, 5).map((item) => `${item.friendName}: ${item.achievementName}`);
+  downloadShareCard({
+    fileName: `challenge-board_${fileTimestamp()}.png`,
+    title: 'DBD Challenge Board',
+    subtitle: 'Friend assignments',
+    lines: top,
+    footer: 'DBD-Achi-Tracker challenge board',
+    accent: '#ffcd66',
+  });
+}
+
 function setLoadingState(isLoading, isForceRefresh = false) {
   elements.loadButton.disabled = isLoading;
   elements.refreshButton.disabled = isLoading;
@@ -878,13 +1243,93 @@ async function openAdminModal() {
   }
 }
 
-function upsertCompareProfile(entry) {
+async function exportOverridesJson() {
+  const response = await fetch('/api/admin/overrides/export');
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.error || 'Failed to export overrides.');
+  downloadFile(JSON.stringify(data.overrides, null, 2), `achievement_overrides_${fileTimestamp()}.json`, 'application/json');
+  showMessage('Exported overrides JSON.', 'success');
+}
+
+async function importOverridesJson() {
+  const raw = elements.adminImportJsonInput.value.trim();
+  if (!raw) {
+    showMessage('Paste an overrides JSON object first.', 'error');
+    return;
+  }
+  let parsed;
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    showMessage('Overrides import JSON is not valid.', 'error');
+    return;
+  }
+  const response = await fetch('/api/admin/overrides/import', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ overrides: parsed }),
+  });
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.error || 'Failed to import overrides.');
+  if (state.admin.status) {
+    state.admin.status.overrideCount = data.overrideCount;
+    updateAdminCacheSummary(state.admin.status);
+  }
+  showMessage(data.message || 'Overrides imported.', 'success');
+}
+
+async function reloadMetadataCaches() {
+  const response = await fetch('/api/admin/reload-metadata', { method: 'POST' });
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.error || 'Failed to reload metadata caches.');
+  showMessage(data.message || 'Metadata caches refreshed.', 'success');
+}
+
+function recordCompareSnapshot(entry) {
   const key = entry.resolvedProfileUrl || entry.input || entry.profileName;
+  state.compareHistory.unshift({
+    key,
+    profileName: entry.profileName,
+    completionPercent: entry.completionPercent,
+    adeptUnlocked: entry.adeptUnlocked,
+    adeptTotal: entry.adeptTotal,
+    unlocked: entry.unlocked,
+    total: entry.total,
+    timestamp: Date.now(),
+  });
+  state.compareHistory = state.compareHistory.slice(0, 80);
+  saveCompareHistory();
+}
+
+function upsertCompareProfile(entry) {
+  const normalized = { ...entry, comparedAt: Date.now() };
+  const key = normalized.resolvedProfileUrl || normalized.input || normalized.profileName;
   const existingIndex = state.compareProfiles.findIndex((item) => (item.resolvedProfileUrl || item.input || item.profileName) === key);
-  if (existingIndex >= 0) state.compareProfiles.splice(existingIndex, 1, entry);
-  else state.compareProfiles.push(entry);
+  if (existingIndex >= 0) state.compareProfiles.splice(existingIndex, 1, normalized);
+  else state.compareProfiles.push(normalized);
   state.compareProfiles.sort((a, b) => (b.completionPercent || 0) - (a.completionPercent || 0));
+  recordCompareSnapshot(normalized);
+  saveCompareProfiles();
   renderCompareModule();
+}
+
+function renderCompareHistory() {
+  if (!elements.compareHistoryList || !elements.compareHistoryCount) return;
+  elements.compareHistoryCount.textContent = `${state.compareHistory.length} snapshot${state.compareHistory.length === 1 ? '' : 's'}`;
+  if (!state.compareHistory.length) {
+    elements.compareHistoryList.innerHTML = '<p class="subtle">No compare snapshots yet. Add a friend to start building history.</p>';
+    return;
+  }
+  elements.compareHistoryList.innerHTML = state.compareHistory.slice(0, 20).map((entry) => {
+    const date = new Date(entry.timestamp);
+    return `
+      <article class="history-card">
+        <strong>${escapeHtml(entry.profileName)}</strong>
+        <span>${date.toLocaleString()}</span>
+        <small>Completion: ${escapeHtml(formatPercent(entry.completionPercent))} • Adepts: ${escapeHtml(`${entry.adeptUnlocked}/${entry.adeptTotal}`)}</small>
+      </article>
+    `;
+  }).join('');
 }
 
 function renderCompareModule() {
@@ -894,6 +1339,7 @@ function renderCompareModule() {
     elements.compareAverageCompletion.textContent = '0%';
     elements.compareBestAdepts.textContent = '0';
     elements.compareTableBody.innerHTML = '<tr><td colspan="7">No profiles added yet. Add current profile or a friend profile to start comparing.</td></tr>';
+    renderCompareHistory();
     return;
   }
 
@@ -910,21 +1356,21 @@ function renderCompareModule() {
     const pctWidth = Math.max(0, Math.min(100, percent));
     return `
       <tr>
-        <td>
+        <td data-label="Profile">
           <strong>${escapeHtml(profile.profileName)}${leader}</strong>
           <div><a href="${escapeHtml(profile.resolvedProfileUrl)}" target="_blank" rel="noreferrer">Open profile</a></div>
         </td>
-        <td>
+        <td data-label="Completion">
           <div class="global-rate-cell">
             <strong>${escapeHtml(formatPercent(percent))}</strong>
             <div class="mini-progress"><span style="width:${pctWidth}%"></span></div>
           </div>
         </td>
-        <td>${escapeHtml(`${profile.unlocked}/${profile.total}`)}</td>
-        <td>${escapeHtml(`${profile.adeptUnlocked}/${profile.adeptTotal}`)}</td>
-        <td>${escapeHtml(`${profile.killerUnlocked}/${profile.killerTotal}`)}</td>
-        <td>${escapeHtml(`${profile.survivorUnlocked}/${profile.survivorTotal}`)}</td>
-        <td>
+        <td data-label="Unlocked">${escapeHtml(`${profile.unlocked}/${profile.total}`)}</td>
+        <td data-label="Adepts">${escapeHtml(`${profile.adeptUnlocked}/${profile.adeptTotal}`)}</td>
+        <td data-label="Killer">${escapeHtml(`${profile.killerUnlocked}/${profile.killerTotal}`)}</td>
+        <td data-label="Survivor">${escapeHtml(`${profile.survivorUnlocked}/${profile.survivorTotal}`)}</td>
+        <td data-label="Action">
           <div class="chapter-item-actions">
             <button class="mini-action" type="button" data-load-compare="${index}">Load</button>
             <button class="mini-action" type="button" data-remove-compare="${index}">Remove</button>
@@ -933,6 +1379,7 @@ function renderCompareModule() {
       </tr>
     `;
   }).join('');
+  renderCompareHistory();
 }
 
 async function fetchComparisonProfile(profileInput) {
@@ -1002,6 +1449,7 @@ function addCurrentProfileToCompare() {
 
 function removeCompareProfile(index) {
   state.compareProfiles.splice(index, 1);
+  saveCompareProfiles();
   renderCompareModule();
 }
 
@@ -1014,6 +1462,7 @@ function loadCompareProfileIntoMain(index) {
 
 function clearCompareProfiles() {
   state.compareProfiles = [];
+  saveCompareProfiles();
   renderCompareModule();
 }
 
@@ -1031,8 +1480,8 @@ function renderGoalsModule() {
     return;
   }
 
-  elements.goalsList.innerHTML = sortAchievements(goals, 'locked_first').map((achievement) => `
-    <article class="goal-card ${achievement.unlocked ? 'done' : 'todo'}">
+  elements.goalsList.innerHTML = goals.map((achievement, index) => `
+    <article class="goal-card ${achievement.unlocked ? 'done' : 'todo'}" draggable="true" data-goal-index="${index}">
       <div class="goal-card-top">
         ${portraitImageTag(achievement.character, `${achievement.character || 'Character'} portrait`, 'portrait-medium')}
         <div>
@@ -1046,11 +1495,66 @@ function renderGoalsModule() {
         </div>
       </div>
       <p class="goal-description">${escapeHtml(achievement.description || '')}</p>
-      <div class="module-actions left-actions">
-        <button class="mini-action active" type="button" data-pin-achievement="${escapeHtml(achievement.name)}">Remove from queue</button>
+      <div class="goal-card-actions">
+        <span class="drag-hint">Drag to reorder</span>
+        <div class="chapter-item-actions">
+          <button class="mini-action" type="button" data-open-achievement="${escapeHtml(achievement.name)}">Details</button>
+          <button class="mini-action active" type="button" data-pin-achievement="${escapeHtml(achievement.name)}">Remove from queue</button>
+        </div>
       </div>
     </article>
   `).join('');
+}
+
+function renderRouletteWheel() {
+  if (!elements.rouletteWheel || !elements.rouletteCenterLabel) return;
+  const goals = resolvePinnedGoalAchievements().slice(0, 8);
+  if (!goals.length) {
+    elements.rouletteWheel.style.setProperty('--wheel-gradient', 'conic-gradient(from 0deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03))');
+    elements.rouletteCenterLabel.textContent = 'Pin goals to spin';
+    return;
+  }
+  const colors = ['#57d2ff', '#7a90ff', '#59dfb4', '#ffcd66', '#ff7d7d', '#cf85ff', '#84a6ff', '#95f1b8'];
+  const step = 360 / goals.length;
+  const parts = goals.map((goal, index) => {
+    const start = index * step;
+    const end = start + step;
+    return `${colors[index % colors.length]} ${start}deg ${end}deg`;
+  });
+  elements.rouletteWheel.style.setProperty('--wheel-gradient', `conic-gradient(${parts.join(',')})`);
+  elements.rouletteCenterLabel.textContent = `${goals.length} goals loaded`;
+}
+
+function spinRouletteWheel() {
+  const goals = resolvePinnedGoalAchievements().slice(0, 8);
+  if (!goals.length) {
+    elements.rouletteResultCard.classList.add('empty');
+    elements.rouletteResultCard.innerHTML = '<p>Pin some goals first so the roulette wheel has something to spin.</p>';
+    return;
+  }
+  const index = Math.floor(Math.random() * goals.length);
+  const picked = goals[index];
+  const step = 360 / goals.length;
+  const extraTurns = 1440;
+  const targetRotation = extraTurns + (360 - (index * step + step / 2));
+  elements.rouletteWheel.style.setProperty('--wheel-rotation', `${targetRotation}deg`);
+  elements.rouletteResultCard.classList.remove('empty');
+  elements.rouletteResultCard.innerHTML = `
+    <div class="random-card-header">
+      <div>
+        <p class="eyebrow">Roulette result</p>
+        <h3>${escapeHtml(picked.name)}</h3>
+      </div>
+      ${portraitImageTag(picked.character, `${picked.character || 'Character'} portrait`, 'random-icon')}
+    </div>
+    <div class="meta-row">
+      ${roleBadge(picked.role)}
+      ${statusBadge(picked.unlocked)}
+      ${adeptBadge(picked.isAdept)}
+      <button class="mini-action" type="button" data-open-achievement="${escapeHtml(picked.name)}">Details</button>
+    </div>
+    <p>${escapeHtml(picked.description || '')}</p>
+  `;
 }
 
 function randomGoalFromQueue() {
@@ -1133,6 +1637,96 @@ function recommendGoal() {
   `;
 }
 
+function renderChallengeAchievementOptions() {
+  const goals = resolvePinnedGoalAchievements();
+  if (!elements.challengeAchievementSelect) return;
+  if (!goals.length) {
+    elements.challengeAchievementSelect.innerHTML = '<option value="">Pin a goal first</option>';
+    return;
+  }
+  elements.challengeAchievementSelect.innerHTML = ['<option value="">Choose a pinned goal</option>']
+    .concat(goals.map((goal) => `<option value="${escapeHtml(goal.name)}">${escapeHtml(goal.name)}</option>`))
+    .join('');
+}
+
+function renderChallengeBoard() {
+  if (!elements.challengeBoardList || !elements.challengeBoardCount) return;
+  const items = state.challengeBoard;
+  elements.challengeBoardCount.textContent = `${items.length} challenge${items.length === 1 ? '' : 's'}`;
+  if (!items.length) {
+    elements.challengeBoardList.innerHTML = '<div class="goal-card"><p>No friend challenges yet. Pin a goal, assign it, and build a board.</p></div>';
+    return;
+  }
+  elements.challengeBoardList.innerHTML = items.map((item, index) => `
+    <article class="goal-card ${item.completed ? 'done' : 'todo'}">
+      <div class="goal-card-top">
+        ${portraitImageTag(item.character, `${item.character || 'Character'} portrait`, 'portrait-medium')}
+        <div>
+          <p class="eyebrow">${escapeHtml(item.friendName)}</p>
+          <h3>${escapeHtml(item.achievementName)}</h3>
+          <div class="meta-row">
+            ${roleBadge(item.role)}
+            ${item.completed ? '<span class="badge unlocked">Completed</span>' : '<span class="badge locked">Active</span>'}
+          </div>
+        </div>
+      </div>
+      <p class="goal-description">${escapeHtml(item.chapter || 'No chapter tag')}</p>
+      <div class="chapter-item-actions">
+        <button class="mini-action" type="button" data-toggle-challenge="${index}">${item.completed ? 'Mark active' : 'Mark done'}</button>
+        <button class="mini-action" type="button" data-remove-challenge="${index}">Remove</button>
+      </div>
+    </article>
+  `).join('');
+}
+
+function addChallengeBoardItem() {
+  const friendName = elements.challengeFriendInput.value.trim();
+  const achievementName = elements.challengeAchievementSelect.value;
+  if (!friendName || !achievementName) {
+    showMessage('Enter a friend name and choose a pinned goal first.', 'error');
+    return;
+  }
+  const achievement = state.achievements.find((item) => item.name === achievementName);
+  if (!achievement) {
+    showMessage('That goal is not available in the currently loaded profile.', 'error');
+    return;
+  }
+  state.challengeBoard.unshift({
+    friendName,
+    achievementName,
+    character: achievement.character,
+    chapter: achievement.chapter,
+    role: achievement.role,
+    completed: false,
+    createdAt: Date.now(),
+  });
+  saveChallengeBoard();
+  elements.challengeFriendInput.value = '';
+  elements.challengeAchievementSelect.value = '';
+  renderChallengeBoard();
+  showMessage(`Added ${achievementName} to the challenge board for ${friendName}.`, 'success');
+}
+
+function toggleChallengeBoardItem(index) {
+  const item = state.challengeBoard[index];
+  if (!item) return;
+  item.completed = !item.completed;
+  saveChallengeBoard();
+  renderChallengeBoard();
+}
+
+function removeChallengeBoardItem(index) {
+  state.challengeBoard.splice(index, 1);
+  saveChallengeBoard();
+  renderChallengeBoard();
+}
+
+function clearCompletedChallenges() {
+  state.challengeBoard = state.challengeBoard.filter((item) => !item.completed);
+  saveChallengeBoard();
+  renderChallengeBoard();
+}
+
 function renderRoleChart() {
   if (!state.currentSummary) {
     elements.roleChart.innerHTML = '<p class="subtle">Load a profile to see the role chart.</p>';
@@ -1199,6 +1793,50 @@ function renderRarityChart() {
       <strong>${row.pct.toFixed(1)}%</strong>
     </div>
   `).join('');
+}
+
+function renderTrendChart() {
+  const unlocked = state.achievements.filter((achievement) => achievement.unlocked && achievement.unlockDate);
+  if (!unlocked.length) {
+    elements.trendChart.innerHTML = '<p class="subtle">No unlock-date data available yet.</p>';
+    return;
+  }
+
+  const counts = new Map();
+  for (const achievement of unlocked) {
+    const date = new Date(achievement.unlockDate);
+    if (Number.isNaN(date.getTime())) continue;
+    const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+    counts.set(key, (counts.get(key) || 0) + 1);
+  }
+
+  const entries = [...counts.entries()].sort(([a], [b]) => a.localeCompare(b)).slice(-8);
+  const maxCount = Math.max(...entries.map(([, count]) => count), 1);
+  const bars = entries.map(([month, count], index) => {
+    const width = 72;
+    const gap = 22;
+    const x = 40 + index * (width + gap);
+    const h = (count / maxCount) * 180;
+    const y = 220 - h;
+    return `
+      <rect x="${x}" y="${y}" width="${width}" height="${h}" rx="12" fill="url(#trend)"/>
+      <text x="${x + width / 2}" y="242" text-anchor="middle" fill="#aeb9d3" font-size="12" font-family="Inter, Segoe UI, Arial">${month.slice(2)}</text>
+      <text x="${x + width / 2}" y="${y - 8}" text-anchor="middle" fill="#edf3ff" font-size="12" font-family="Inter, Segoe UI, Arial">${count}</text>
+    `;
+  }).join('');
+
+  elements.trendChart.innerHTML = `
+    <svg viewBox="0 0 760 260" class="chart-svg" role="img" aria-label="Unlock trend chart">
+      <defs>
+        <linearGradient id="trend" x1="0" x2="1" y1="0" y2="1">
+          <stop offset="0%" stop-color="#57d2ff"/>
+          <stop offset="100%" stop-color="#7a90ff"/>
+        </linearGradient>
+      </defs>
+      <line x1="30" y1="220" x2="730" y2="220" stroke="rgba(255,255,255,0.12)" />
+      ${bars}
+    </svg>
+  `;
 }
 
 function renderHeatmap() {
@@ -1272,6 +1910,7 @@ function renderChapterSummary() {
 function renderInsights() {
   renderRoleChart();
   renderRarityChart();
+  renderTrendChart();
   renderHeatmap();
   renderChapterSummary();
 }
@@ -1281,7 +1920,12 @@ function renderAllDataViews() {
   filterAdeptBrowser();
   updateRandomModule(false);
   renderGoalsModule();
+  renderChallengeAchievementOptions();
+  renderChallengeBoard();
   renderInsights();
+  renderCompareModule();
+  renderEventsModule();
+  renderRouletteWheel();
   if (adminEnabled) populateAdminAchievementSelect();
 }
 
@@ -1290,14 +1934,64 @@ function applyTheme(theme) {
   if (elements.themeSelect) elements.themeSelect.value = theme;
 }
 
+function applyOverlayMode(enabled) {
+  state.overlayMode = enabled;
+  localStorage.setItem(OVERLAY_STORAGE_KEY, enabled ? '1' : '0');
+  document.body.classList.toggle('overlay-mode', enabled);
+  if (elements.overlayToggleButton) {
+    elements.overlayToggleButton.classList.toggle('active', enabled);
+    elements.overlayToggleButton.textContent = enabled ? 'Exit overlay' : 'Overlay mode';
+  }
+}
+
 function hydrateTheme() {
   const savedTheme = localStorage.getItem(THEME_STORAGE_KEY) || 'default';
   applyTheme(savedTheme);
+  applyOverlayMode(localStorage.getItem(OVERLAY_STORAGE_KEY) === '1');
 }
 
 function persistTheme(theme) {
   localStorage.setItem(THEME_STORAGE_KEY, theme);
   applyTheme(theme);
+}
+
+function exportAppState() {
+  const payload = {
+    theme: localStorage.getItem(THEME_STORAGE_KEY) || 'default',
+    pinnedGoals: state.pinnedGoals,
+    compareProfiles: state.compareProfiles,
+    compareHistory: state.compareHistory,
+    challengeBoard: state.challengeBoard,
+    exportedAt: new Date().toISOString(),
+  };
+  downloadFile(JSON.stringify(payload, null, 2), `dbd_app_state_${fileTimestamp()}.json`, 'application/json');
+  showMessage('Exported app state JSON.', 'success');
+}
+
+function importAppState() {
+  const raw = elements.stateImportInput.value.trim();
+  if (!raw) {
+    showMessage('Paste an app state JSON object first.', 'error');
+    return;
+  }
+  let parsed;
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    showMessage('App state JSON is not valid.', 'error');
+    return;
+  }
+  state.pinnedGoals = Array.isArray(parsed.pinnedGoals) ? parsed.pinnedGoals : [];
+  state.compareProfiles = Array.isArray(parsed.compareProfiles) ? parsed.compareProfiles : [];
+  state.compareHistory = Array.isArray(parsed.compareHistory) ? parsed.compareHistory : [];
+  state.challengeBoard = Array.isArray(parsed.challengeBoard) ? parsed.challengeBoard : [];
+  savePinnedGoals();
+  saveCompareProfiles();
+  saveCompareHistory();
+  saveChallengeBoard();
+  persistTheme(parsed.theme || 'default');
+  renderAllDataViews();
+  showMessage('Imported app state.', 'success');
 }
 
 async function loadAchievements(profile, forceRefresh = false) {
@@ -1354,6 +2048,53 @@ function setRandomRole(role) {
   updateRandomModule(true);
 }
 
+function attachGoalDragAndDrop() {
+  if (!elements.goalsList) return;
+
+  elements.goalsList.addEventListener('dragstart', (event) => {
+    const target = event.target;
+    if (!(target instanceof HTMLElement)) return;
+    const card = target.closest('[data-goal-index]');
+    if (!card) return;
+    state.dragGoalIndex = Number(card.getAttribute('data-goal-index'));
+    card.classList.add('dragging');
+    if (event.dataTransfer) {
+      event.dataTransfer.effectAllowed = 'move';
+      event.dataTransfer.setData('text/plain', String(state.dragGoalIndex));
+    }
+  });
+
+  elements.goalsList.addEventListener('dragend', (event) => {
+    const target = event.target;
+    if (target instanceof HTMLElement) {
+      const card = target.closest('[data-goal-index]');
+      if (card) card.classList.remove('dragging');
+    }
+    state.dragGoalIndex = null;
+  });
+
+  elements.goalsList.addEventListener('dragover', (event) => {
+    event.preventDefault();
+  });
+
+  elements.goalsList.addEventListener('drop', (event) => {
+    event.preventDefault();
+    const target = event.target;
+    if (!(target instanceof HTMLElement)) return;
+    const card = target.closest('[data-goal-index]');
+    if (!card) return;
+    const dropIndex = Number(card.getAttribute('data-goal-index'));
+    const fromIndex = state.dragGoalIndex;
+    if (fromIndex === null || Number.isNaN(dropIndex) || fromIndex === dropIndex) return;
+    const updated = [...state.pinnedGoals];
+    const [moved] = updated.splice(fromIndex, 1);
+    updated.splice(dropIndex, 0, moved);
+    state.pinnedGoals = updated;
+    savePinnedGoals();
+    renderAllDataViews();
+  });
+}
+
 function attachDelegatedPinHandlers() {
   document.addEventListener('click', (event) => {
     const target = event.target;
@@ -1362,6 +2103,12 @@ function attachDelegatedPinHandlers() {
     const pinButton = target.closest('[data-pin-achievement]');
     if (pinButton) {
       togglePinnedGoal(pinButton.getAttribute('data-pin-achievement'));
+      return;
+    }
+
+    const openAchievement = target.closest('[data-open-achievement]');
+    if (openAchievement) {
+      openAchievementModalByName(openAchievement.getAttribute('data-open-achievement'));
       return;
     }
 
@@ -1374,6 +2121,18 @@ function attachDelegatedPinHandlers() {
     const loadCompare = target.closest('[data-load-compare]');
     if (loadCompare) {
       loadCompareProfileIntoMain(Number(loadCompare.getAttribute('data-load-compare')));
+      return;
+    }
+
+    const toggleChallenge = target.closest('[data-toggle-challenge]');
+    if (toggleChallenge) {
+      toggleChallengeBoardItem(Number(toggleChallenge.getAttribute('data-toggle-challenge')));
+      return;
+    }
+
+    const removeChallenge = target.closest('[data-remove-challenge]');
+    if (removeChallenge) {
+      removeChallengeBoardItem(Number(removeChallenge.getAttribute('data-remove-challenge')));
     }
   });
 }
@@ -1400,11 +2159,18 @@ function attachEvents() {
   });
 
   elements.themeSelect.addEventListener('change', () => persistTheme(elements.themeSelect.value));
+  elements.overlayToggleButton.addEventListener('click', () => applyOverlayMode(!state.overlayMode));
 
   elements.aboutButton.addEventListener('click', () => openModal(elements.aboutModal));
   elements.aboutCloseButton.addEventListener('click', () => closeModal(elements.aboutModal));
   elements.aboutModal.addEventListener('click', (event) => {
     if (event.target === elements.aboutModal) closeModal(elements.aboutModal);
+  });
+  elements.stateExportButton.addEventListener('click', exportAppState);
+  elements.stateImportButton.addEventListener('click', importAppState);
+  elements.achievementCloseButton.addEventListener('click', () => closeModal(elements.achievementModal));
+  elements.achievementModal.addEventListener('click', (event) => {
+    if (event.target === elements.achievementModal) closeModal(elements.achievementModal);
   });
 
   if (adminEnabled) {
@@ -1438,6 +2204,27 @@ function attachEvents() {
         showMessage(error.message || 'Failed to clear caches.', 'error');
       }
     });
+    elements.adminReloadMetadata.addEventListener('click', async () => {
+      try {
+        await reloadMetadataCaches();
+      } catch (error) {
+        showMessage(error.message || 'Failed to reload metadata caches.', 'error');
+      }
+    });
+    elements.adminExportOverrides.addEventListener('click', async () => {
+      try {
+        await exportOverridesJson();
+      } catch (error) {
+        showMessage(error.message || 'Failed to export overrides.', 'error');
+      }
+    });
+    elements.adminImportOverrides.addEventListener('click', async () => {
+      try {
+        await importOverridesJson();
+      } catch (error) {
+        showMessage(error.message || 'Failed to import overrides.', 'error');
+      }
+    });
     elements.adminSaveOverride.addEventListener('click', () => saveOverride(false));
     elements.adminSaveReload.addEventListener('click', () => saveOverride(true));
     elements.adminRemoveOverride.addEventListener('click', removeOverride);
@@ -1446,6 +2233,7 @@ function attachEvents() {
   document.addEventListener('keydown', (event) => {
     if (event.key === 'Escape') {
       closeModal(elements.aboutModal);
+      closeModal(elements.achievementModal);
       if (adminEnabled) closeModal(elements.adminModal);
     }
   });
@@ -1456,6 +2244,8 @@ function attachEvents() {
   });
 
   elements.quickRoleButtons.forEach((button) => button.addEventListener('click', () => setQuickRole(button.dataset.roleQuick)));
+  elements.rarityFilterButtons.forEach((button) => button.addEventListener('click', () => { state.rarityFilter = button.dataset.rarityFilter; filterAchievements(); }));
+  elements.extraFilterButtons.forEach((button) => button.addEventListener('click', () => { state.extraFilter = button.dataset.extraFilter; filterAchievements(); }));
   [elements.adeptSearchInput, elements.adeptSortSelect, elements.adeptStatusFilter].forEach((element) => {
     element.addEventListener('input', filterAdeptBrowser);
     element.addEventListener('change', filterAdeptBrowser);
@@ -1471,24 +2261,42 @@ function attachEvents() {
 
   elements.goalsRecommendButton.addEventListener('click', recommendGoal);
   elements.goalsRandomButton.addEventListener('click', randomGoalFromQueue);
+  elements.goalsShareButton.addEventListener('click', shareGoalCard);
+  elements.rouletteSpinButton.addEventListener('click', spinRouletteWheel);
   elements.goalsClearButton.addEventListener('click', () => {
     state.pinnedGoals = [];
     savePinnedGoals();
     renderAllDataViews();
   });
+  elements.challengeAddButton.addEventListener('click', addChallengeBoardItem);
+  elements.challengeExportJsonButton.addEventListener('click', () => exportChallengeBoard('json'));
+  elements.challengeExportCsvButton.addEventListener('click', () => exportChallengeBoard('csv'));
+  elements.challengeShareButton.addEventListener('click', shareChallengeBoardCard);
+  elements.challengeClearDoneButton.addEventListener('click', clearCompletedChallenges);
 
   elements.compareAddButton.addEventListener('click', addCompareProfileFromInput);
   elements.compareAddCurrentButton.addEventListener('click', addCurrentProfileToCompare);
   elements.compareClearButton.addEventListener('click', clearCompareProfiles);
+  elements.compareShareButton.addEventListener('click', shareLeaderboardCard);
+  elements.shareProfileButton.addEventListener('click', shareCurrentProfileCard);
+  elements.insightsShareButton.addEventListener('click', shareCurrentProfileCard);
+
+  elements.eventsFilterSelect.addEventListener('change', renderEventsModule);
+  elements.eventsStatusSelect.addEventListener('change', renderEventsModule);
 
   attachDelegatedPinHandlers();
+  attachGoalDragAndDrop();
 }
 
 attachEvents();
 hydrateTheme();
+renderChallengeAchievementOptions();
+renderChallengeBoard();
 renderGoalsModule();
+renderRouletteWheel();
 renderCompareModule();
 renderInsights();
+renderEventsModule();
 setQuickRole('all');
 setAdeptBrowserRole('killer');
 setRandomRole('killer');

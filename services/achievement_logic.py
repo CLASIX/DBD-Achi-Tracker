@@ -379,6 +379,20 @@ def delete_achievement_override(name: str) -> dict[str, dict[str, Any]]:
     return existing
 
 
+def replace_achievement_overrides(new_overrides: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    if not isinstance(new_overrides, dict):
+        raise ValueError("Overrides payload must be a JSON object.")
+
+    cleaned: dict[str, Any] = {}
+    for key, value in new_overrides.items():
+        if isinstance(key, str) and isinstance(value, dict):
+            cleaned[key] = value
+
+    OVERRIDES_PATH.write_text(json.dumps(cleaned, indent=2, ensure_ascii=False), encoding="utf-8")
+    refresh_metadata_caches()
+    return cleaned
+
+
 def merge_achievements(
     global_achievements: list[dict[str, Any]], personal_achievements: list[dict[str, Any]]
 ) -> list[dict[str, Any]]:

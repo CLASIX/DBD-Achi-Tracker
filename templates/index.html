@@ -51,6 +51,7 @@
             </label>
 
             <div class="hero-actions">
+              <button id="overlay-toggle-button" class="secondary-button" type="button">Overlay mode</button>
               <button id="about-button" class="secondary-button" type="button">About / Changelog</button>
               {% if admin_tools_enabled %}
                 <button id="admin-button" class="secondary-button" type="button">Admin Tools</button>
@@ -75,7 +76,10 @@
             <div class="profile-banner-copy">
               <p class="eyebrow">Loaded profile</p>
               <h2 id="profile-name">-</h2>
-              <a id="profile-link" href="#" target="_blank" rel="noreferrer">Open Steam profile</a>
+              <div class="profile-link-row">
+                <a id="profile-link" href="#" target="_blank" rel="noreferrer">Open Steam profile</a>
+                <button id="share-profile-button" class="secondary-button" type="button">Share profile card</button>
+              </div>
 
               <div class="overall-progress-block">
                 <div class="progress-head">
@@ -190,6 +194,7 @@
           <button class="module-tab" data-module-target="goals" type="button">📌 Goals</button>
           <button class="module-tab" data-module-target="compare" type="button">👥 Compare</button>
           <button class="module-tab" data-module-target="insights" type="button">📈 Insights</button>
+          <button class="module-tab" data-module-target="events" type="button">🎉 Events</button>
         </nav>
 
         <section id="module-browser" class="module-panel card">
@@ -297,6 +302,21 @@
                 <input id="exclude-adepts" type="checkbox">
                 <span>Exclude Adept</span>
               </label>
+            </div>
+
+            <div class="advanced-chip-row">
+              <div class="chip-group">
+                <button class="chip chip-small active" data-rarity-filter="all" type="button">All rarities</button>
+                <button class="chip chip-small" data-rarity-filter="ultra" type="button">Ultra rare</button>
+                <button class="chip chip-small" data-rarity-filter="rare" type="button">Rare</button>
+                <button class="chip chip-small" data-rarity-filter="common" type="button">Common</button>
+              </div>
+              <div class="chip-group">
+                <button class="chip chip-small active" data-extra-filter="all" type="button">All types</button>
+                <button class="chip chip-small" data-extra-filter="has-character" type="button">Has character</button>
+                <button class="chip chip-small" data-extra-filter="date-known" type="button">Known unlock date</button>
+                <button class="chip chip-small" data-extra-filter="event" type="button">Event-style</button>
+              </div>
             </div>
 
             <div class="module-actions">
@@ -496,6 +516,7 @@
           <div class="module-actions left-actions">
             <button id="goals-recommend-button" type="button">What should I grind tonight?</button>
             <button id="goals-random-button" type="button">Random goal from queue</button>
+            <button id="goals-share-button" class="secondary-button" type="button">Share goal card</button>
             <button id="goals-clear-button" class="secondary-button" type="button">Clear queue</button>
           </div>
 
@@ -507,7 +528,59 @@
             <p>Pin some achievements first, then pick a random queue goal.</p>
           </article>
 
+          <section class="card inset-card roulette-section">
+            <div class="section-header compact">
+              <div>
+                <p class="eyebrow">Roulette</p>
+                <h3>Challenge Roulette Wheel</h3>
+              </div>
+              <button id="roulette-spin-button" type="button">Spin wheel</button>
+            </div>
+            <div class="roulette-layout">
+              <div class="roulette-pointer"></div>
+              <div id="roulette-wheel" class="roulette-wheel">
+                <div id="roulette-center-label" class="roulette-center-label">Pin goals to spin</div>
+              </div>
+            </div>
+            <article id="roulette-result-card" class="random-card empty">
+              <p>Spin the wheel to pick a pinned challenge.</p>
+            </article>
+          </section>
+
           <div id="goals-list" class="goals-list scroll-area"></div>
+
+          <section class="card inset-card challenge-board-section">
+            <div class="section-header compact">
+              <div>
+                <p class="eyebrow">Friends</p>
+                <h3>Challenge Board</h3>
+              </div>
+              <p id="challenge-board-count" class="results-count">0 challenges</p>
+            </div>
+
+            <div class="controls-grid">
+              <label>
+                Friend name
+                <input id="challenge-friend-input" type="text" placeholder="Enter a friend name">
+              </label>
+              <label>
+                Pinned goal
+                <select id="challenge-achievement-select">
+                  <option value="">Pin a goal first</option>
+                </select>
+              </label>
+            </div>
+
+            <div class="module-actions left-actions">
+              <button id="challenge-add-button" type="button">Add challenge</button>
+              <button id="challenge-export-json-button" class="secondary-button" type="button">Export challenge JSON</button>
+              <button id="challenge-export-csv-button" class="secondary-button" type="button">Export challenge CSV</button>
+              <button id="challenge-share-button" class="secondary-button" type="button">Share challenge card</button>
+              <button id="challenge-clear-done-button" class="secondary-button" type="button">Clear completed</button>
+            </div>
+
+            <div id="challenge-board-list" class="goals-list scroll-area"></div>
+          </section>
         </section>
 
         <section id="module-compare" class="module-panel card hidden">
@@ -534,6 +607,7 @@
             <div class="compare-actions-block">
               <button id="compare-add-button" type="button">Add to compare</button>
               <button id="compare-add-current-button" class="secondary-button" type="button">Add current profile</button>
+              <button id="compare-share-button" class="secondary-button" type="button">Share leaderboard card</button>
               <button id="compare-clear-button" class="secondary-button" type="button">Clear compare list</button>
             </div>
           </div>
@@ -554,6 +628,17 @@
               <tbody id="compare-table-body"></tbody>
             </table>
           </div>
+
+          <section class="card inset-card compare-history-section">
+            <div class="section-header compact">
+              <div>
+                <p class="eyebrow">History</p>
+                <h3>Compare snapshots</h3>
+              </div>
+              <p id="compare-history-count" class="results-count">0 snapshots</p>
+            </div>
+            <div id="compare-history-list" class="compare-history-list scroll-area"></div>
+          </section>
         </section>
 
         <section id="module-insights" class="module-panel card hidden">
@@ -563,6 +648,7 @@
               <h2>Charts, Heatmap, and Chapter View</h2>
               <p class="section-copy">See role progress visually, unlock activity over time, and chapter-grouped completion in one place.</p>
             </div>
+            <button id="insights-share-button" class="secondary-button" type="button">Share profile card</button>
           </div>
 
           <div class="insights-layout scroll-area">
@@ -589,6 +675,16 @@
             <section class="card inset-card">
               <div class="section-header compact">
                 <div>
+                  <p class="eyebrow">Trend</p>
+                  <h3>Unlock trend</h3>
+                </div>
+              </div>
+              <div id="trend-chart" class="chart-host"></div>
+            </section>
+
+            <section class="card inset-card">
+              <div class="section-header compact">
+                <div>
                   <p class="eyebrow">Heatmap</p>
                   <h3>Unlock activity</h3>
                 </div>
@@ -606,6 +702,39 @@
               <div id="chapter-summary-list" class="chapter-summary-list"></div>
             </section>
           </div>
+        </section>
+
+        <section id="module-events" class="module-panel card hidden">
+          <div class="section-header">
+            <div>
+              <p class="eyebrow">Seasonal / Event</p>
+              <h2>Event Tracker</h2>
+              <p class="section-copy">Track event-style achievements, map secrets, holiday tasks, and special interaction challenges in one place.</p>
+            </div>
+            <p id="events-count" class="results-count">0 event achievements</p>
+          </div>
+
+          <div class="controls-grid">
+            <label>
+              Event filter
+              <select id="events-filter-select">
+                <option value="all">All event-style achievements</option>
+                <option value="holiday">Holiday / seasonal</option>
+                <option value="secret">Secrets / map interactions</option>
+                <option value="special">Special item / special condition</option>
+              </select>
+            </label>
+            <label>
+              Status
+              <select id="events-status-select">
+                <option value="all">All</option>
+                <option value="locked">Locked only</option>
+                <option value="unlocked">Unlocked only</option>
+              </select>
+            </label>
+          </div>
+
+          <div id="events-list" class="chapter-groups scroll-area"></div>
         </section>
       </section>
     </main>
@@ -632,6 +761,21 @@
         </section>
 
         <section class="modal-section">
+          <h3>Local app state</h3>
+          <p class="section-copy">Back up or restore your local compare list, goals, challenge board, and theme settings.</p>
+          <div class="module-actions left-actions">
+            <button id="state-export-button" class="secondary-button" type="button">Export app state</button>
+          </div>
+          <label>
+            Import app state JSON
+            <textarea id="state-import-input" rows="8" placeholder="Paste exported app state JSON here"></textarea>
+          </label>
+          <div class="module-actions left-actions">
+            <button id="state-import-button" type="button">Import app state</button>
+          </div>
+        </section>
+
+        <section class="modal-section">
           <h3>Changelog</h3>
           <div class="changelog-list">
             {% for entry in changelog %}
@@ -648,6 +792,23 @@
               </article>
             {% endfor %}
           </div>
+        </section>
+      </div>
+    </div>
+
+    <div id="achievement-modal" class="modal-overlay hidden" aria-hidden="true">
+      <div class="modal-card card" role="dialog" aria-modal="true" aria-labelledby="achievement-modal-title">
+        <div class="section-header compact">
+          <div>
+            <p class="eyebrow">Achievement details</p>
+            <h2 id="achievement-modal-title">Achievement</h2>
+            <p id="achievement-modal-subtitle" class="section-copy">Role, chapter, and status details</p>
+          </div>
+          <button id="achievement-close-button" class="secondary-button" type="button">Close</button>
+        </div>
+
+        <section class="modal-section">
+          <div id="achievement-modal-body" class="achievement-modal-body"></div>
         </section>
       </div>
     </div>
@@ -676,6 +837,26 @@
             <button id="admin-clear-profile-cache" class="secondary-button" type="button">Clear profile cache</button>
             <button id="admin-clear-global-cache" class="secondary-button" type="button">Clear global cache</button>
             <button id="admin-clear-all-cache" type="button">Clear all caches</button>
+          </div>
+        </section>
+
+        <section class="modal-section">
+          <div class="section-header compact">
+            <div>
+              <h3>Metadata tools</h3>
+              <p class="section-copy">Export overrides, import overrides, or refresh metadata caches without restarting the app.</p>
+            </div>
+          </div>
+          <div class="module-actions left-actions">
+            <button id="admin-reload-metadata" class="secondary-button" type="button">Reload metadata caches</button>
+            <button id="admin-export-overrides" class="secondary-button" type="button">Export overrides JSON</button>
+          </div>
+          <label>
+            Import overrides JSON
+            <textarea id="admin-import-json-input" rows="8" placeholder="Paste a full overrides JSON object here"></textarea>
+          </label>
+          <div class="module-actions left-actions">
+            <button id="admin-import-overrides" type="button">Replace overrides from JSON</button>
           </div>
         </section>
 
